@@ -24,7 +24,7 @@ import entity.User;
 import service.UserService;
 
 @RestController
-//@RequestMapping("/myFirstMvc")
+@RequestMapping("/Users")
 public class UserController {
 	private static final String template = "Hello, %s!";
     private final AtomicLong counter = new AtomicLong();
@@ -37,17 +37,17 @@ public class UserController {
 //		response.getWriter().write("world");
 //	}
 	@RequestMapping(value = "/hello",method=RequestMethod.POST)
-	public User greetingByPost(@RequestParam(value="userid", defaultValue="1") int userid) {
+	public User greetingByPost(@RequestParam(value="userid", defaultValue="1") String userid) {
 //        return new Greeting(counter.incrementAndGet(),
 //                            String.format(template, name));
 		return userService.selectById(userid);//.toString();
     }
 	
 	@RequestMapping(value = "/hello/{userid}",method=RequestMethod.GET)
-	public User greetingByGet(@PathVariable("userid") int userid) {
+	public User greetingByGet(@PathVariable("userid") String oid) {
 //        return new Greeting(counter.incrementAndGet(),
 //                            String.format(template, name));
-		return userService.selectById(userid);//.toString();
+		return userService.selectById(oid);//.toString();
     }
 	
 	@RequestMapping(value = "/persons", method = RequestMethod.PUT)  
@@ -69,5 +69,64 @@ public class UserController {
 //		mav.addObject("result",classification + "_"+id);
 		return classification+"_"+id;
 	}
+	
+	/********************注册业务**********************/
+	@RequestMapping(value = "/ValidEmail",method=RequestMethod.POST)
+	public String validEmail(@RequestParam(value="email", defaultValue="1") String email){
+		if (userService.validEmail(email)){
+			return "{\"valid\":true}";
+		}else{
+			return "{\"valid\":false}";
+		}
+	}
+	@RequestMapping(value = "/ValidMobile",method=RequestMethod.POST)
+	public String validMobile(@RequestParam(value="mobile", defaultValue="1") String mobile){
+		if (userService.validMobile(mobile)){
+			return "{\"valid\":true}";
+		}else{
+			return "{\"valid\":false}";
+		}
+	}
+	@RequestMapping(value = "/ValidSMS",method=RequestMethod.POST)
+	public String validSMS(@RequestParam(value="mobileValidCode", defaultValue="1") String sms,HttpServletRequest request1){
+		if (userService.validSMS(sms,request1)){
+			return "{\"valid\":true}";
+		}else{
+			return "{\"valid\":false}";
+		}
+	}
+	@RequestMapping(value = "/GetSMS",method=RequestMethod.POST)
+	public String GetSMS(@RequestParam(value="mobileVal", defaultValue="1") String mobile,HttpServletRequest request1){
+		if (userService.GetSMS(mobile,request1)){
+			return "{\"code\":1}";
+		}else{
+			return "{\"code\":0}";
+		}
+	}
+	@RequestMapping(value = "/AddNew",method=RequestMethod.POST)
+	public String saveNewUser(HttpServletRequest request,HttpServletResponse resp) throws IOException{
+		if (userService.saveNewUser(request)){
+			resp.sendRedirect("/register.html#code=100");
+		}else{
+			resp.sendRedirect("/register.html#code=101");
+		}
+		return "";
+	}
+	@RequestMapping(value = "/ValidInfo",method=RequestMethod.POST)
+	public String validInfo(@RequestParam(value="logininfo", defaultValue="1") String logininfo,@RequestParam(value="password", 
+		defaultValue="1") String password,HttpServletRequest request){
+		User user = userService.validInfo(logininfo, password);
+		System.out.println(user.getTruename());
+		if (user.getLoginname() == null || user.getLoginname().equals("")){
+			return "{\"code\":0}";
+		}
+		//设置session
+		request.getSession().setAttribute("truename",user.getTruename());
+		request.getSession().setAttribute("loginname",user.getLoginname());
+		request.getSession().setAttribute("memlevel",user.getMemlevel());
+		//返回
+		return "{\"code\":1,\"truename\":\""+user.getTruename()+"\",\"loginname\":\""+user.getLoginname()+"\"}";
+	}
+	
 	
 }
