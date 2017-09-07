@@ -17,6 +17,7 @@ public class User {
 	private String weibotoken;
 	private int regtype;
 	private String regphoto;
+	private String backgroundimg;
 	
 	public String getOid() {
 		return oid;
@@ -113,6 +114,12 @@ public class User {
 	}
 	public void setRegphoto(String regphoto) {
 		this.regphoto = regphoto;
+	}
+	public String getBackgroundimg() {
+		return backgroundimg;
+	}
+	public void setBackgroundimg(String backgroundimg) {
+		this.backgroundimg = backgroundimg;
 	}
 //	@Override
 //	public String toString() {

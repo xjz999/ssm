@@ -63,10 +63,62 @@ public class UserServiceImplement implements UserService {
 //		return this.userDao.selectById(id);
 	}
 	public Boolean validEmail(String email){
-		return true;
+		selectsql  = "select oid from psatmp.users where email='"+email+"'";
+		System.out.print(selectsql);
+		try {
+			Class.forName(mysqlDriverName);//指定连接类型
+			conn = DriverManager.getConnection(mysqlUrl , mysqlUser, mysqlPassword);//获取连接
+			pst = conn.prepareStatement(selectsql);//准备执行语句
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		boolean isConflict = false;
+		try {
+			retsult = pst.executeQuery();//执行语句，得到结果集
+			int rowCount = 0;
+			while(retsult.next()) {
+			  rowCount++; 
+			}
+			if (rowCount > 0)isConflict = true;
+			retsult.close();
+			conn.close();//关闭连接
+			pst.close();
+			conn = null;
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return !isConflict;
 	}
 	public Boolean validMobile(String mobile){
-		return true;
+		selectsql  = "select oid from psatmp.users where mobile='"+mobile+"'";
+		System.out.print(selectsql);
+		try {
+			Class.forName(mysqlDriverName);//指定连接类型
+			conn = DriverManager.getConnection(mysqlUrl , mysqlUser, mysqlPassword);//获取连接
+			pst = conn.prepareStatement(selectsql);//准备执行语句
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		boolean isConflict = false;
+		try {
+			retsult = pst.executeQuery();//执行语句，得到结果集
+			int rowCount = 0; 
+			while(retsult.next()) {
+			  rowCount++; 
+			}
+			if (rowCount > 0)isConflict = true;
+//			if (retsult.next()) {
+//				if (retsult.getString(1) != null)
+//					
+//			}//显示数据
+			retsult.close();
+			conn.close();//关闭连接
+			pst.close();
+			conn = null;
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return !isConflict;
 	}
 	public Boolean validSMS(String sms,HttpServletRequest request1){
 		System.out.println("读取");
@@ -134,8 +186,9 @@ public class UserServiceImplement implements UserService {
 			Class.forName(mysqlDriverName);//指定连接类型
 			conn = DriverManager.getConnection(mysqlUrl , mysqlUser, mysqlPassword);//获取连接
 			pst = conn.prepareStatement(selectsql);//准备执行语句
-			retsult = pst.executeQuery();
-			System.out.println(retsult);
+			boolean insertSuccess = pst.execute();
+			System.out.println("注册插入");
+			System.out.println(insertSuccess);
 			retsult.close();
 			conn.close();//关闭连接
 			pst.close();

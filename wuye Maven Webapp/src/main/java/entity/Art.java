@@ -4,13 +4,15 @@ public class Art {
 	private String oid;
 	private String title;
 	private String useroid;
-	private String addr;
+	private String photoaddr;
 	private String phototime;
 	private String story;
 	private String url;
 	private int orderindex;
 	private long createtime;
 	private long edittime;
+	private int ctype;
+	private int awardtype;
 	public String getOid() {
 		return oid;
 	}
@@ -29,11 +31,11 @@ public class Art {
 	public void setUseroid(String useroid) {
 		this.useroid = useroid;
 	}
-	public String getAddr() {
-		return addr;
+	public String getPhotoaddr() {
+		return photoaddr;
 	}
-	public void setAddr(String addr) {
-		this.addr = addr;
+	public void setPhotoAddr(String photoaddr) {
+		this.photoaddr = photoaddr;
 	}
 	public String getPhototime() {
 		return phototime;
@@ -71,7 +73,18 @@ public class Art {
 	public void setEdittime(long edittime) {
 		this.edittime = edittime;
 	}
-	
+	public int getCtype() {
+		return ctype;
+	}
+	public void setCtype(int ctype) {
+		this.ctype = ctype;
+	}
+	public int getAwardtype() {
+		return awardtype;
+	}
+	public void setAwardtype(int awardtype) {
+		this.awardtype = awardtype;
+	}
 //	@Override
 //	public String toString() {
 //		return "User [id=" + id + ", username=" + username + ", password="
