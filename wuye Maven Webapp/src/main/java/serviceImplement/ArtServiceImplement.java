@@ -101,18 +101,18 @@ public class ArtServiceImplement implements ArtService {
 			retsult = pst.executeQuery();//执行语句，得到结果集
 			if (retsult.next()) {
 				System.out.println("abc============");
-				art.setOid(retsult.getString(0));
-				art.setTitle(retsult.getString(1));
-				art.setUseroid(retsult.getString(2));
-				art.setPhotoAddr(retsult.getString(3));
-				art.setPhototime(retsult.getString(4));
-				art.setStory(retsult.getString(5));
-				art.setUrl(retsult.getString(6));
-				art.setOrderindex(((Integer)retsult.getInt(7) == null)?0:retsult.getInt(7));
-				art.setCreatetime((retsult.getDate(8)==null)?0:retsult.getDate(8).getTime());
-				art.setEdittime((retsult.getDate(9)==null)?0:retsult.getDate(9).getTime());
-				art.setCtype(((Integer)retsult.getInt(10) == null)?0:retsult.getInt(10));
-				art.setAwardtype(((Integer)retsult.getInt(11) == null)?0:retsult.getInt(11));
+				art.setOid(retsult.getString(1));
+				art.setTitle(retsult.getString(2));
+				art.setUseroid(retsult.getString(3));
+				art.setPhotoAddr(retsult.getString(4));
+				art.setPhototime(retsult.getString(5));
+				art.setStory(retsult.getString(6));
+				art.setUrl(retsult.getString(7));
+				art.setOrderindex(((Integer)retsult.getInt(8) == null)?0:retsult.getInt(8));
+				art.setCreatetime((retsult.getDate(9)==null)?0:retsult.getDate(9).getTime());
+				art.setEdittime((retsult.getDate(10)==null)?0:retsult.getDate(10).getTime());
+				art.setCtype(((Integer)retsult.getInt(11) == null)?0:retsult.getInt(11));
+				art.setAwardtype(((Integer)retsult.getInt(12) == null)?0:retsult.getInt(12));
 			}//显示数据
 			retsult.close();
 			conn.close();//关闭连接
@@ -276,4 +276,5 @@ public class ArtServiceImplement implements ArtService {
 		
 		return abm;
 	}
+
 }

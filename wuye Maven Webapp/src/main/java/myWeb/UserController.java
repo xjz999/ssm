@@ -4,6 +4,8 @@ import myWeb.Greeting;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.sql.SQLException;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +22,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
+import entity.Art;
+import entity.ArtBackModel;
 import entity.User;
+import entity.UserBackModel;
 import service.UserService;
 
 @RestController
@@ -128,5 +133,41 @@ public class UserController {
 		return "{\"code\":1,\"truename\":\""+user.getTruename()+"\",\"loginname\":\""+user.getLoginname()+"\"}";
 	}
 	
-	
+	//******************************* CURD ****************************/
+	// 查
+	@RequestMapping(value = "/GetOne/{oid}", method = RequestMethod.GET)
+	public User getOne(@PathVariable("oid") String oid) {
+		// return new Greeting(counter.incrementAndGet(),
+		// String.format(template, name));
+		return userService.selectById(oid);// .toString();
+	}
+
+	// 增 & 改
+	@RequestMapping(value = "/AddNewByJson", method = RequestMethod.POST)
+	public String addNew(@RequestBody User user) throws ClassNotFoundException, SQLException {
+		// return new Greeting(counter.incrementAndGet(),
+		// String.format(template, name));
+		boolean success = false;
+		try{
+			success = userService.addNew(user);
+		}catch(Exception e){
+			return "{\"code\":0}";
+		}
+		return (success)?"{\"code\":1}":"{\"code\":0}";
+	}
+
+	// 删
+	@RequestMapping(value = "/DeleteOne/{oid}", method = RequestMethod.GET)
+	public boolean deleteOne(@PathVariable("oid") String oid) {
+		// return new Greeting(counter.incrementAndGet(),
+		// String.format(template, name));
+		return userService.deleteOne(oid);// .toString();
+	}
+
+	// 列表及翻页
+	@RequestMapping(value = "/List", method = RequestMethod.POST)
+	public UserBackModel getList(@RequestBody Map mSearch) throws SQLException {//regtype email mobile truename pagesize pageindex
+//		List<Art> list = artService.getList(mSearch);
+		return userService.getList(mSearch);// .toString();
+	}
 }
