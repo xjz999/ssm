@@ -2,6 +2,8 @@ package myWeb;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,17 +21,17 @@ public class SysUserController {
 	private SysUserService sysUserService;
 	
 	// ¸Ä
-	@RequestMapping(value = "/Modify", method = RequestMethod.GET)
+	@RequestMapping(value = "/Modify", method = RequestMethod.POST)
 	public boolean modifyPw(@RequestBody Map mPw) {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
 		return sysUserService.ModifyPassword((String)mPw.get("username"), (String)mPw.get("oldPw"), (String)mPw.get("newPw"));// .toString();
 	}
 	//µÇ
-	@RequestMapping(value = "/Login", method = RequestMethod.GET)
-	public boolean doLogin(@RequestBody Map mPw) {
+	@RequestMapping(value = "/Login", method = RequestMethod.POST)
+	public boolean doLogin(@RequestBody Map mPw,HttpServletRequest hsq) {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
-		return sysUserService.SysLogin((String)mPw.get("username"), (String)mPw.get("password"));// .toString();
+		return sysUserService.SysLogin((String)mPw.get("username"), (String)mPw.get("password"),hsq);// .toString();
 	}
 }

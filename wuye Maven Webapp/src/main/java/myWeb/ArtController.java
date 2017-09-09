@@ -1,6 +1,7 @@
 package myWeb;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -8,6 +9,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 
+import javax.imageio.ImageIO;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 
@@ -63,16 +65,19 @@ public class ArtController {
 
 		System.out.println("开始");
 		if (file == null) {
-			return "{\"filename\":\"\",\"code\":0}";
-		}
-		if (file == null) {
-			return "{\"filename\":\"\",\"code\":0}";
+			return "{\"filename\":\"\",\"code\":\"file null\"}";
 		}
 		if (file.isEmpty()) {
-			return "{\"filename\":\"\",\"code\":0}";
+			return "{\"filename\":\"\",\"code\":\"file empty\"}";
 		}
 		if (file.getSize() > 5 * 1024 * 1024) {
-			return "{\"filename\":\"\",\"code\":2}";
+			return "{\"filename\":\"\",\"code\":\"file size err\"}";
+		}
+		String orgName = file.getOriginalFilename();
+		System.out.println(orgName);
+		String extName = orgName.substring(orgName.lastIndexOf("."));
+		if (!extName.toLowerCase().equals(".gif") && !extName.toLowerCase().equals(".jpg") && !extName.toLowerCase().equals(".png")){
+			return "{\"filename\":\"\",\"code\":\"file type err\"}";
 		}
 
 		String path = savePathSet;// request.getSession().getServletContext().getRealPath("upload");
@@ -89,10 +94,8 @@ public class ArtController {
 			pathDir.mkdirs();
 		}
 		System.out.println(pathDir.exists());
-		String orgName = file.getOriginalFilename();
-		System.out.println(orgName);
-		String extName = orgName.substring(orgName.lastIndexOf("."));
-		String fileName = allStr + String.valueOf(randomInt) + extName;// file.getOriginalFilename();
+		
+		String fileName = allStr + String.valueOf(randomInt) + "_b_d" + extName;// file.getOriginalFilename();
 		// String fileName = new Date().getTime()+".jpg";
 		System.out.println("保存之前");
 		System.out.println(path + File.separator + monthStr);
@@ -105,12 +108,37 @@ public class ArtController {
 		// 保存
 		try {
 			file.transferTo(targetFile);
+			String smallFilename = path + File.separator + monthStr + File.separator+fileName.replace("_b_d", "");
+			toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "{\"filename\":\"\"}";
+			return "{\"filename\":\"\",\"code\":\"save err\"}";
 		}
 		return "{\"filename\":\"" + monthStr + "/" + fileName + "\"}";
 	}
+	
+	public static void toSmaillImg(String filePath,String thumbPath) throws Exception{    
+		String newurl =thumbPath;    
+		java.awt.Image bigJpg = javax.imageio.ImageIO.read(new java.io.File(filePath));    
+		float tagsize = 120;    
+		 int old_w = bigJpg.getWidth(null);    
+		int old_h = bigJpg.getHeight(null);       
+		int new_w = 0;    
+		 int new_h = 0;    
+		 float tempdouble;     
+		 tempdouble = old_w > old_h ? old_w/tagsize : old_h/tagsize;    
+		 new_w = Math.round(old_w/tempdouble);    
+		 new_h = Math.round(old_h/tempdouble);    
+		 java.awt.image.BufferedImage tag = new java.awt.image.BufferedImage(new_w,new_h,java.awt.image.BufferedImage.TYPE_INT_RGB);    
+		 tag.getGraphics().drawImage(bigJpg,0,0,new_w,new_h,null);    
+		 FileOutputStream newimage = new FileOutputStream(newurl);    
+//		 com.sun.image.codec.jpeg.JPEGImageEncoder encoder = com.sun.image.codec.jpeg.JPEGCodec.createJPEGEncoder(newimage);           
+//		 encoder.encode(tag);
+		 String ext = newurl.substring(newurl.lastIndexOf(".")+1);
+		 System.out.println(ext);
+		 ImageIO.write(tag,ext,new File(newurl));
+		 newimage.close();    
+}    
 
 	// 查
 	@RequestMapping(value = "/GetOne/{oid}", method = RequestMethod.GET)

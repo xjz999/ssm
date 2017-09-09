@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Component;
 
 import service.SysUserService;
@@ -59,7 +61,7 @@ public class SysUserServiceImplement implements SysUserService {
 		return true;
 	}
 
-	public boolean SysLogin(String username, String password) {
+	public boolean SysLogin(String username, String password, HttpServletRequest hsq) {
 		selectsql = "select * from psatmp.sysusers where username='"+username+"' and password='"+password+"'";
 		try {
 			Class.forName(mysqlDriverName);//指定连接类型
@@ -72,6 +74,8 @@ public class SysUserServiceImplement implements SysUserService {
 		try {
 			retsult = pst.executeQuery();//执行语句，得到结果集
 			if (retsult.next()) {
+				hsq.getSession().setAttribute("sysusername",username);
+				hsq.getSession().setAttribute("sysuseroid",retsult.getString(1));
 				System.out.println("abc============");
 				System.out.println(retsult);
 				retsult.close();
