@@ -120,7 +120,7 @@ public class ArtController {
 	public static void toSmaillImg(String filePath,String thumbPath) throws Exception{    
 		String newurl =thumbPath;    
 		java.awt.Image bigJpg = javax.imageio.ImageIO.read(new java.io.File(filePath));    
-		float tagsize = 120;    
+		float tagsize = 150;    
 		 int old_w = bigJpg.getWidth(null);    
 		int old_h = bigJpg.getHeight(null);       
 		int new_w = 0;    
@@ -145,14 +145,21 @@ public class ArtController {
 	public Art getOne(@PathVariable("oid") String oid) {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
-		return artService.selectById(oid);// .toString();
+		return artService.getOne(oid);// .toString();
 	}
 
 	// 增 & 改
 	@RequestMapping(value = "/AddNew", method = RequestMethod.POST)
-	public String addNew(@RequestBody Art art) throws ClassNotFoundException, SQLException {
+	public String addNew(@RequestBody Art art,HttpServletRequest hsq) throws ClassNotFoundException, SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
+		//检查权限，是否已登录
+//		System.out.println(hsq.getSession().getAttribute("powerleve"));
+//		if (hsq.getSession().getAttribute("powerleve")==null ||
+//				(String)hsq.getSession().getAttribute("powerleve") != "lv100"
+//				){
+//			return "{\"code\":10}";
+//		}
 		boolean success = false;
 		try{
 			success = artService.addNew(art);

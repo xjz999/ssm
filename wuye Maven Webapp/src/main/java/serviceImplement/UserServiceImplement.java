@@ -126,6 +126,7 @@ public class UserServiceImplement implements UserService {
 	public Boolean validSMS(String sms,HttpServletRequest request1){
 		System.out.println("读取");
 		String smsIntCode = (String)request1.getSession().getAttribute("smsIntCode");
+		if (smsIntCode == null)return false;
 		System.out.println(smsIntCode);
 		System.out.println(sms);
 		if (smsIntCode.equals(sms))
@@ -291,12 +292,25 @@ public class UserServiceImplement implements UserService {
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		if (user.getOid() != null && user.getOid() != ""){//修改
 			selectsql = "UPDATE `psatmp`.`users` SET `truename` = '"+user.getTruename()+"',"+
-			"`loginname` = '"+user.getLoginname()+"',`password` = '"+user.getPassword()+"',`sex` = "+user.getSex()+","+
-			"`email` = '"+user.getEmail() +"',`mobile` = '"+user.getMobile()+"',`memlevel` = "+user.getMemlevel()+","+
-			"`portrait` = '"+user.getPortrait() +"',`eidttime` = now(),"+
-			"`qqtoken` = '"+user.getQqtoken()+"',`wechattoken` = '"+user.getWechattoken()+"',`weibotoken` = '"+user.getWeibotoken()+"',"+
-			"`regtype` = "+user.getRegtype()+",`regphoto` = '"+user.getRegphoto() +"',`backgroundimg` = '"+user.getBackgroundimg()+"'"+
-			" WHERE `oid` = '"+user.getOid() +"';";
+			"`loginname` = '"+user.getLoginname()+"',"
+				+"`email` = '"+user.getEmail() +"',`mobile` = '"+user.getMobile()+"',`memlevel` = "+user.getMemlevel()+",";
+				if (user.getPassword() != null && !user.getPassword().equals(""))
+					selectsql+= "`password` = '"+user.getPassword()+"',";
+				if (user.getPortrait() != null)	
+					selectsql += "`portrait` = '"+user.getPortrait() +"',";
+				if (user.getQqtoken() != null)	
+					selectsql += "`qqtoken` = '"+user.getQqtoken()+"',";
+				if (user.getWechattoken() != null)
+					selectsql += "`wechattoken` = '"+user.getWechattoken()+"',";
+				if (user.getWeibotoken() != null)	
+					selectsql += "`weibotoken` = '"+user.getWeibotoken()+"',";
+				if (user.getRegphoto() != null)
+					selectsql += "`regphoto` = '"+user.getRegphoto() +"',";
+				if (user.getQqtoken() != null)	
+					selectsql += "`backgroundimg` = '"+user.getBackgroundimg()+"',";
+				
+				selectsql += "`eidttime` = now() WHERE `oid` = '"+user.getOid() +"';";
+				System.out.println(selectsql);
 		}else{//新增
 			UUID uuid = UUID.randomUUID();
 		    String oid = uuid.toString();

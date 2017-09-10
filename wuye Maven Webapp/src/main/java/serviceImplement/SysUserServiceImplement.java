@@ -74,10 +74,13 @@ public class SysUserServiceImplement implements SysUserService {
 		try {
 			retsult = pst.executeQuery();//执行语句，得到结果集
 			if (retsult.next()) {
+				System.out.println("http request");
+				System.out.println(hsq);
 				hsq.getSession().setAttribute("sysusername",username);
 				hsq.getSession().setAttribute("sysuseroid",retsult.getString(1));
-				System.out.println("abc============");
-				System.out.println(retsult);
+				hsq.getSession().setAttribute("powerleve;","lv100");
+				System.out.println("get session");
+				System.out.println(hsq.getSession().getAttribute("powerleve"));
 				retsult.close();
 				conn.close();//关闭连接
 				pst.close();

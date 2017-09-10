@@ -139,14 +139,20 @@ public class UserController {
 	public User getOne(@PathVariable("oid") String oid) {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
-		return userService.selectById(oid);// .toString();
+		return userService.getOne(oid);// .toString();
 	}
 
 	// 增 & 改
 	@RequestMapping(value = "/AddNewByJson", method = RequestMethod.POST)
-	public String addNew(@RequestBody User user) throws ClassNotFoundException, SQLException {
+	public String addNew(@RequestBody User user,HttpServletRequest hsq) throws ClassNotFoundException, SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
+		//检查权限，是否已登录
+//		if (hsq.getSession().getAttribute("powerleve")==null ||
+//				(String)hsq.getSession().getAttribute("powerleve") != "lv100"
+//				){
+//			return "{\"code\":10}";
+//		}
 		boolean success = false;
 		try{
 			success = userService.addNew(user);
