@@ -75,9 +75,10 @@ public class UserController {
 		return classification+"_"+id;
 	}
 	
-	/********************注册业务**********************/
+	/********************注册业务
+	 * @throws SQLException **********************/
 	@RequestMapping(value = "/ValidEmail",method=RequestMethod.POST)
-	public String validEmail(@RequestParam(value="email", defaultValue="1") String email){
+	public String validEmail(@RequestParam(value="email", defaultValue="1") String email) throws SQLException{
 		if (userService.validEmail(email)){
 			return "{\"valid\":true}";
 		}else{
@@ -85,7 +86,7 @@ public class UserController {
 		}
 	}
 	@RequestMapping(value = "/ValidMobile",method=RequestMethod.POST)
-	public String validMobile(@RequestParam(value="mobile", defaultValue="1") String mobile){
+	public String validMobile(@RequestParam(value="mobile", defaultValue="1") String mobile) throws SQLException{
 		if (userService.validMobile(mobile)){
 			return "{\"valid\":true}";
 		}else{
@@ -109,7 +110,7 @@ public class UserController {
 		}
 	}
 	@RequestMapping(value = "/AddNew",method=RequestMethod.POST)
-	public String saveNewUser(HttpServletRequest request,HttpServletResponse resp) throws IOException{
+	public String saveNewUser(HttpServletRequest request,HttpServletResponse resp) throws IOException, SQLException{
 		if (userService.saveNewUser(request)){
 			resp.sendRedirect("/register.html#code=100");
 		}else{
@@ -119,7 +120,7 @@ public class UserController {
 	}
 	@RequestMapping(value = "/ValidInfo",method=RequestMethod.POST)
 	public String validInfo(@RequestParam(value="logininfo", defaultValue="1") String logininfo,@RequestParam(value="password", 
-		defaultValue="1") String password,HttpServletRequest request){
+		defaultValue="1") String password,HttpServletRequest request) throws SQLException{
 		User user = userService.validInfo(logininfo, password);
 		System.out.println(user.getTruename());
 		if (user.getLoginname() == null || user.getLoginname().equals("")){
@@ -136,7 +137,7 @@ public class UserController {
 	//******************************* CURD ****************************/
 	// 查
 	@RequestMapping(value = "/GetOne/{oid}", method = RequestMethod.GET)
-	public User getOne(@PathVariable("oid") String oid) {
+	public User getOne(@PathVariable("oid") String oid) throws SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
 		return userService.getOne(oid);// .toString();
@@ -164,7 +165,7 @@ public class UserController {
 
 	// 删
 	@RequestMapping(value = "/DeleteOne/{oid}", method = RequestMethod.GET)
-	public boolean deleteOne(@PathVariable("oid") String oid) {
+	public boolean deleteOne(@PathVariable("oid") String oid) throws SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
 		return userService.deleteOne(oid);// .toString();

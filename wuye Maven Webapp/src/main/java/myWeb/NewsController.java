@@ -23,7 +23,7 @@ public class NewsController {
 	private NewsService newsService;
 	// ²é
 	@RequestMapping(value = "/GetOne/{oid}", method = RequestMethod.GET)
-	public News getOne(@PathVariable("oid") String oid) {
+	public News getOne(@PathVariable("oid") String oid) throws SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
 		return newsService.getOne(oid);// .toString();
@@ -52,7 +52,7 @@ public class NewsController {
 
 	// É¾
 	@RequestMapping(value = "/DeleteOne/{oid}", method = RequestMethod.GET)
-	public boolean deleteOne(@PathVariable("oid") String oid) {
+	public boolean deleteOne(@PathVariable("oid") String oid) throws SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
 		return newsService.deleteOne(oid);// .toString();

@@ -46,13 +46,13 @@ public class ArtController {
 		}
 		savePathSet = config.getProperty("servlet.savepath");
 	}
-
-	@RequestMapping(value = "/hello/{oid}", method = RequestMethod.GET)
-	public Art greetingByGet(@PathVariable("oid") String oid) {
-		// return new Greeting(counter.incrementAndGet(),
-		// String.format(template, name));
-		return artService.selectById(oid);// .toString();
-	}
+//
+//	@RequestMapping(value = "/hello/{oid}", method = RequestMethod.GET)
+//	public Art greetingByGet(@PathVariable("oid") String oid) {
+//		// return new Greeting(counter.incrementAndGet(),
+//		// String.format(template, name));
+//		return artService.selectById(oid);// .toString();
+//	}
 
 	// HttpServletRequest request,HttpServletResponse response
 	// throws ServletException, IOException
@@ -60,9 +60,20 @@ public class ArtController {
 	@RequestMapping(value = "/fileUpload")
 	public String fileUpload(
 			@RequestParam(value = "file", required = false) MultipartFile file,
+			@RequestParam(value = "modeltype", required = false) String modelType,
 			HttpServletRequest request) throws ServletException, IOException {
+		String picType="0";//
+		if (modelType != null && !modelType.equals("")){
+			picType = modelType;
+		}
+		//modelType 1-图片新闻
+//		2-图片故事
+//		3-个人图片
+//		4-获奖图片
+//		5-上传赛事图标
+		
 		// String savePath="/home/wwwroot/ftpuser/uploadfiles";
-
+		System.out.println(modelType);
 		System.out.println("开始");
 		if (file == null) {
 			return "{\"filename\":\"\",\"code\":\"file null\"}";
@@ -100,6 +111,7 @@ public class ArtController {
 		System.out.println("保存之前");
 		System.out.println(path + File.separator + monthStr);
 		System.out.println(fileName);
+//		
 		File targetFile = new File(pathDir,fileName);
 		// if(!targetFile.exists()){
 		// targetFile.mkdirs();
@@ -108,8 +120,35 @@ public class ArtController {
 		// 保存
 		try {
 			file.transferTo(targetFile);
-			String smallFilename = path + File.separator + monthStr + File.separator+fileName.replace("_b_d", "");
-			toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename);
+			String bigFilename = path + File.separator + monthStr + File.separator+fileName;
+			String midFilename = bigFilename.replace("_b_d", "_mid");
+			String firFilename = bigFilename.replace("_b_d", "_fir");
+			String smallFilename = bigFilename.replace("_b_d", "");
+			switch(picType){
+				case "0":
+					toSmaillImg(bigFilename,bigFilename,900, 900,0);
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename,150, 150,0);
+				break;
+				case "1":
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,midFilename,1024, 682,1);
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,firFilename,818, 545,1);
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename,160, 106,0);
+					break;
+				case "2":
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,midFilename,1024, 682,1);
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,firFilename,574, 383,1);
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename,160, 106,0);
+					break;
+				case "4":
+					toSmaillImg(bigFilename,bigFilename,900, 900,0);
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename,168, 112,0);
+					break;
+				case "5":
+					toSmaillImg(bigFilename,bigFilename,120, 90,0);
+//					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename,168, 112,0);
+					break;
+			}
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			return "{\"filename\":\"\",\"code\":\"save err\"}";
@@ -117,18 +156,35 @@ public class ArtController {
 		return "{\"filename\":\"" + monthStr + "/" + fileName + "\"}";
 	}
 	
-	public static void toSmaillImg(String filePath,String thumbPath) throws Exception{    
+	public static void toSmaillImg(String filePath,String thumbPath,float tarWidth,float tarHeight,int outView) throws Exception{    
 		String newurl =thumbPath;    
 		java.awt.Image bigJpg = javax.imageio.ImageIO.read(new java.io.File(filePath));    
-		float tagsize = 150;    
+//		float tagsize = 150;    
 		 int old_w = bigJpg.getWidth(null);    
 		int old_h = bigJpg.getHeight(null);       
 		int new_w = 0;    
 		 int new_h = 0;    
-		 float tempdouble;     
-		 tempdouble = old_w > old_h ? old_w/tagsize : old_h/tagsize;    
-		 new_w = Math.round(old_w/tempdouble);    
-		 new_h = Math.round(old_h/tempdouble);    
+		 float tempdouble;
+		 if (outView  == 1){
+			 if(old_w > tarWidth && old_h > tarHeight){
+				 tempdouble = ((float)old_w / (float)old_h > tarWidth / tarHeight) ?  old_h / tarHeight : old_w / tarWidth; 
+				 new_w = Math.round(old_w/tempdouble);    
+				 new_h = Math.round(old_h/tempdouble);
+			 }else{
+				 new_w = old_w;
+				 new_h = old_h;
+			 }
+		 }else {
+			 if (old_w > tarWidth || old_h > tarHeight){
+				 tempdouble = ((float)old_w / (float)old_h > tarWidth / tarHeight) ? old_w / tarWidth : old_h / tarHeight;    
+				 new_w = Math.round(old_w/tempdouble);    
+				 new_h = Math.round(old_h/tempdouble);    
+			 }else{
+				 new_w = old_w;
+				 new_h = old_h;
+			 }
+		 }
+		 
 		 java.awt.image.BufferedImage tag = new java.awt.image.BufferedImage(new_w,new_h,java.awt.image.BufferedImage.TYPE_INT_RGB);    
 		 tag.getGraphics().drawImage(bigJpg,0,0,new_w,new_h,null);    
 		 FileOutputStream newimage = new FileOutputStream(newurl);    
@@ -142,7 +198,7 @@ public class ArtController {
 
 	// 查
 	@RequestMapping(value = "/GetOne/{oid}", method = RequestMethod.GET)
-	public Art getOne(@PathVariable("oid") String oid) {
+	public Art getOne(@PathVariable("oid") String oid) throws SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
 		return artService.getOne(oid);// .toString();
@@ -171,7 +227,7 @@ public class ArtController {
 
 	// 删
 	@RequestMapping(value = "/DeleteOne/{oid}", method = RequestMethod.GET)
-	public boolean deleteOne(@PathVariable("oid") String oid) {
+	public boolean deleteOne(@PathVariable("oid") String oid) throws SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
 		return artService.deleteOne(oid);// .toString();

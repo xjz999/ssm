@@ -13,6 +13,10 @@ public class News {
 	private int isTop;
 	private int ctype;
 	private long expDate;
+	private int checked;
+	private int deleted;
+	private String source;
+	private String eyebrow;
 	
 	public String getOid() {
 		return oid;
@@ -85,6 +89,30 @@ public class News {
 	}
 	public void setExpDate(long expDate) {
 		this.expDate = expDate;
+	}
+	public int getChecked() {
+		return checked;
+	}
+	public void setChecked(int checked) {
+		this.checked = checked;
+	}
+	public int getDeleted() {
+		return deleted;
+	}
+	public void setDeleted(int deleted) {
+		this.deleted = deleted;
+	}
+	public String getSource() {
+		return source;
+	}
+	public void setSource(String source) {
+		this.source = source;
+	}
+	public String getEyebrow() {
+		return eyebrow;
+	}
+	public void setEyebrow(String eyebrow) {
+		this.eyebrow = eyebrow;
 	}
 	
 }
