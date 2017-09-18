@@ -45,6 +45,7 @@ public class NewsServiceImplement implements NewsService {
 			news.setDeleted(((Integer)rs.getInt(14) == null)?0:rs.getInt(14));
 			news.setSource(rs.getString(15));
 			news.setEyebrow(rs.getString(16));
+			news.setInterpreter(rs.getString(17));
 		}//显示数据
         rs.close();  
         pst.close();
@@ -97,6 +98,9 @@ public class NewsServiceImplement implements NewsService {
 			if (news.getEyebrow() != null && !news.getEyebrow().equals("")){
 				qpList.add(new QueryParam("eyebrow",news.getEyebrow(),0,false));
 			}
+			if (news.getInterpreter() != "" && !news.getInterpreter().equals("")){
+				qpList.add(new QueryParam("interpreter",news.getInterpreter(),0,false));
+			}
 			
 			sql = cs.setUpdateStr(sql, qpList);
 			//加上oid条件
@@ -110,8 +114,8 @@ public class NewsServiceImplement implements NewsService {
 		    String oid = uuid.toString();
 		    oid = oid.toUpperCase();
 		    sql = "INSERT INTO `psatmp`.`news` (`oid`,`title`,`summary`,`author`,`editor`,`pic`,`content`,`createtime`,"+
-		    "`updatetime`,`istop`,`ctype`,`checked`,`deleted`,`source`,`eyebrow`) VALUES "+
-		    "(?,?,?,?,?,?,?,now(),now(),?,?,0,0,?,?);";
+		    "`updatetime`,`istop`,`ctype`,`checked`,`deleted`,`source`,`eyebrow`,`interpreter`) VALUES "+
+		    "(?,?,?,?,?,?,?,now(),now(),?,?,0,0,?,?,?);";
 		    pst = conn.prepareStatement(sql);
 		    pst.setString(1, oid);
 		    pst.setString(2, news.getTitle());
@@ -125,6 +129,7 @@ public class NewsServiceImplement implements NewsService {
 		    pst.setInt(9, news.getCtype());
 		    pst.setString(10, news.getSource());
 		    pst.setString(11, news.getEyebrow());
+		    pst.setString(12, news.getInterpreter());
 		}
         int isSuccess = pst.executeUpdate();
         pst.close();
@@ -177,6 +182,10 @@ public class NewsServiceImplement implements NewsService {
 	    //由记录总数除以每页记录数得出总页数
 	    totalpages = (int)Math.ceil(count/(limit*1.0));
 	    if (totalpages == 0){//不用查了，直接返回
+	    	
+	    	pst.close();
+	        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+	    	
 	    	NewsBackModel cbm0 = new NewsBackModel();
 	    	cbm0.setList(list);
 	    	cbm0.setPageIndex(1);
@@ -218,6 +227,7 @@ public class NewsServiceImplement implements NewsService {
 			news.setDeleted(((Integer)retsult.getInt(14) == null)?0:retsult.getInt(14));
 			news.setSource(retsult.getString(15));
 			news.setEyebrow(retsult.getString(16));
+			news.setInterpreter(retsult.getString(17));
 			list.add(news);
 		}
 		retsult.close();

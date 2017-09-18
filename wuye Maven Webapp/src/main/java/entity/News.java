@@ -17,7 +17,14 @@ public class News {
 	private int deleted = -1;
 	private String source;
 	private String eyebrow;
+	private String interpreter;
 	
+	public String getInterpreter() {
+		return interpreter;
+	}
+	public void setInterpreter(String interpreter) {
+		this.interpreter = interpreter;
+	}
 	public String getOid() {
 		return oid;
 	}

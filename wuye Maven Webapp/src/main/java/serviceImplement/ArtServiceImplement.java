@@ -188,6 +188,9 @@ public class ArtServiceImplement implements ArtService {
 	    //由记录总数除以每页记录数得出总页数
 	    totalpages = (int)Math.ceil(count/(limit*1.0));
 	    if (totalpages == 0){//不用查了，直接返回
+	    	pst.close();
+	        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+	        
 	    	ArtBackModel cbm0 = new ArtBackModel();
 	    	cbm0.setList(list);
 	    	cbm0.setPageIndex(1);

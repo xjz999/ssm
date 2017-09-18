@@ -177,17 +177,17 @@ public class UserServiceImplement implements UserService {
 		User user = new User();
 		String sql = "";
 		if(info.indexOf("@")!=-1){//邮箱
-			sql  = "select truename,loginname,memlevel from psatmp.users where memlevel > 0 and email='"+info+
-					"' and password='"+ pw +"'";
+			sql  = "select truename,loginname,memlevel from psatmp.users where memlevel > 0 and email=? and password=?";
 		}else{
-			sql  = "select truename,loginname,memlevel from psatmp.users where memlevel > 0 and mobile='"+info+
-					"' and password='"+ pw +"'";
+			sql  = "select truename,loginname,memlevel from psatmp.users where memlevel > 0 and mobile=? and password=?";
 		}
 		System.out.print(sql);
 		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
 		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
-        Statement stmt = conn.createStatement();  
-        ResultSet rs = stmt.executeQuery(sql);
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, info);
+		pst.setString(2, pw);
+        ResultSet rs = pst.executeQuery();
         if (rs.next()){
         	System.out.println("abc============");
 			System.out.println(rs);
@@ -196,7 +196,7 @@ public class UserServiceImplement implements UserService {
 			user.setMemlevel(Integer.parseInt(rs.getString(3)));
         }
         rs.close();  
-        stmt.close();  
+        pst.close();
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
 		return user;
 	}
@@ -325,6 +325,8 @@ public class UserServiceImplement implements UserService {
 	    //由记录总数除以每页记录数得出总页数
 	    totalpages = (int)Math.ceil(count/(limit*1.0));
 	    if (totalpages == 0){//不用查了，直接返回
+	    	pst.close();
+	        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
 	    	UserBackModel ubm0 = new UserBackModel();
 			ubm0.setList(list);
 			ubm0.setPageIndex(1);
