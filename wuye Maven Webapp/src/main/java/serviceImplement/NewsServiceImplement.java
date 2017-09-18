@@ -111,7 +111,7 @@ public class NewsServiceImplement implements NewsService {
 		    oid = oid.toUpperCase();
 		    sql = "INSERT INTO `psatmp`.`news` (`oid`,`title`,`summary`,`author`,`editor`,`pic`,`content`,`createtime`,"+
 		    "`updatetime`,`istop`,`ctype`,`checked`,`deleted`,`source`,`eyebrow`) VALUES "+
-		    "(?,?,?,?,?,?,?,now(),now(),?,?,?,?,?,?);";
+		    "(?,?,?,?,?,?,?,now(),now(),?,?,0,0,?,?);";
 		    pst = conn.prepareStatement(sql);
 		    pst.setString(1, oid);
 		    pst.setString(2, news.getTitle());
@@ -123,10 +123,8 @@ public class NewsServiceImplement implements NewsService {
 		    
 		    pst.setInt(8, news.getIsTop());
 		    pst.setInt(9, news.getCtype());
-		    pst.setInt(10, news.getChecked());
-		    pst.setInt(11, news.getDeleted());
-		    pst.setString(12, news.getSource());
-		    pst.setString(13, news.getEyebrow());
+		    pst.setString(10, news.getSource());
+		    pst.setString(11, news.getEyebrow());
 		}
         int isSuccess = pst.executeUpdate();
         pst.close();
@@ -157,6 +155,10 @@ public class NewsServiceImplement implements NewsService {
 	    	paramList.add(new QueryParam("title",mSearch.get("title"),0,true));
 	    if(mSearch.get("ctype") != null )
 	    	paramList.add(new QueryParam("ctype",mSearch.get("ctype"),1,false));
+	    if(mSearch.get("deleted") != null )
+	    	paramList.add(new QueryParam("deleted",mSearch.get("deleted"),1,false));
+	    if(mSearch.get("checked") != null )
+	    	paramList.add(new QueryParam("checked",mSearch.get("checked"),1,false));
 	    
 	    //计算记录总数的第二种办法：使用mysql的聚集函数count(*)
 	    String selectsql  = "select count(*) from psatmp.news where 1=1"; 

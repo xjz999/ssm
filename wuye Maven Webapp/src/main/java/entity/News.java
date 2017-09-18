@@ -10,11 +10,11 @@ public class News {
 	private String content;
 	private long createTime;
 	private long updateTime;
-	private int isTop;
-	private int ctype;
+	private int isTop = -1;
+	private int ctype = -1;
 	private long expDate;
-	private int checked;
-	private int deleted;
+	private int checked = -1;
+	private int deleted = -1;
 	private String source;
 	private String eyebrow;
 	

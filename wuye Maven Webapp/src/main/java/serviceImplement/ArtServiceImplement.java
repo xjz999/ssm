@@ -116,7 +116,7 @@ public class ArtServiceImplement implements ArtService {
 		    String oid = uuid.toString();
 		    oid = oid.toUpperCase();
 		    sql = "INSERT INTO `psatmp`.`arts`(`oid`,`title`,`useroid`,`photoaddr`,`phototime`,`story`,`url`,`orderindex`,`createtime`,`edittime`,`ctype`,`awardtype`,`aligntype`,`checked`,`deleted`,`author`)"+
-		    " VALUES (?,?,?,?,?,?,?,?,now(),now(),?,?,?,?,?,?);";
+		    " VALUES (?,?,?,?,?,?,?,?,now(),now(),?,?,?,0,0,?);";
 		    pst = conn.prepareStatement(sql);
 		    pst.setString(1, oid);
 		    pst.setString(2, art.getTitle());
@@ -130,9 +130,7 @@ public class ArtServiceImplement implements ArtService {
 		    pst.setInt(9, art.getCtype());
 		    pst.setInt(10, art.getAwardtype());
 		    pst.setInt(11, art.getAligntype());
-		    pst.setInt(12, art.getChecked());
-		    pst.setInt(13, art.getDeleted());
-		    pst.setString(14, art.getAuthor());
+		    pst.setString(12, art.getAuthor());
 		}
         int isSuccess = pst.executeUpdate();
         pst.close();
@@ -167,6 +165,11 @@ public class ArtServiceImplement implements ArtService {
 	    if (mSearch.get("awardtype") != null){
 	    	paramList.add(new QueryParam("awardtype",mSearch.get("awardtype"),1,true));
 	    }
+	    if (mSearch.get("deleted") != null){
+	    	paramList.add(new QueryParam("deleted",mSearch.get("deleted"),1,true));
+	    }
+	    if(mSearch.get("checked") != null )
+	    	paramList.add(new QueryParam("checked",mSearch.get("checked"),1,false));
 	    
 	    //计算记录总数的第二种办法：使用mysql的聚集函数count(*)
 	    String selectsql  = "select count(*) from psatmp.arts where 1=1"; 
