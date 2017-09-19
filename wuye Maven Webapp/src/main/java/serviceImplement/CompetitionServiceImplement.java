@@ -64,40 +64,40 @@ public class CompetitionServiceImplement implements CompetitionService {
 		CompomentSql cs = new CompomentSql();
 		if (competi.getOid() != null && !competi.getOid().equals("")){//ÐÞ¸Ä
 			sql = "UPDATE `psatmp`.`competitions` SET `edittime` = now()";
-			if (competi.getTitle() != null && !competi.getTitle().equals("")){
+			if (competi.getTitle() != null){
 				qpList.add(new QueryParam("title",competi.getTitle(),0,false));
 			}
-			if (competi.getPics() != null && !competi.getPics().equals("")){
+			if (competi.getPics() != null){
 				qpList.add(new QueryParam("pics",competi.getPics(),0,false));
 			}
-			if (competi.getTitleen() != null && !competi.getTitleen().equals("")){
+			if (competi.getTitleen() != null){
 				qpList.add(new QueryParam("titleen",competi.getTitleen(),0,false));
 			}
-			if (competi.getValidecode() != null && !competi.getValidecode().equals("")){
+			if (competi.getValidecode() != null){
 				qpList.add(new QueryParam("validecode",competi.getValidecode(),0,false));
 			}
-			if (competi.getSource() != null && !competi.getSource().equals("")){
+			if (competi.getSource() != null){
 				qpList.add(new QueryParam("source",competi.getSource(),0,false));
 			}
-			if (competi.getExpdate() != null && !competi.getExpdate().equals("")){
+			if (competi.getExpdate() != null){
 				qpList.add(new QueryParam("expdate",competi.getExpdate(),0,false));
 			}
-			if (competi.getF1() != null && !competi.getF1().equals("")){
+			if (competi.getF1() != null){
 				qpList.add(new QueryParam("f1",competi.getF1(),0,false));
 			}
-			if (competi.getF2() != null && !competi.getF2().equals("")){
+			if (competi.getF2() != null){
 				qpList.add(new QueryParam("f2",competi.getF2(),0,false));
 			}
-			if (competi.getF3() != null && !competi.getF3().equals("")){
+			if (competi.getF3() != null){
 				qpList.add(new QueryParam("f3",competi.getF3(),0,false));
 			}
-			if (competi.getF4() != null && !competi.getF4().equals("")){
+			if (competi.getF4() != null){
 				qpList.add(new QueryParam("f4",competi.getF4(),0,false));
 			}
-			if (competi.getF5() != null && !competi.getF5().equals("")){
+			if (competi.getF5() != null){
 				qpList.add(new QueryParam("f5",competi.getF5(),0,false));
 			}
-			if (competi.getFf() != null && !competi.getFf().equals("")){
+			if (competi.getFf() != null){
 				qpList.add(new QueryParam("ff",competi.getFf(),0,false));
 			}
 			if (competi.getChecked() > -1){

@@ -2,14 +2,23 @@ package myWeb;
 
 import myWeb.Greeting;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.Writer;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -32,7 +41,7 @@ import service.UserService;
 @RequestMapping("/Users")
 public class UserController {
 	private static final String template = "Hello, %s!";
-    private final AtomicLong counter = new AtomicLong();
+    private final AtomicLong counter = new AtomicLong();   
 	@Autowired
 	private UserService userService;
 	
@@ -46,6 +55,27 @@ public class UserController {
 //        return new Greeting(counter.incrementAndGet(),
 //                            String.format(template, name));
 		return userService.selectById(userid);//.toString();
+    }
+	
+	@RequestMapping(value = "/GetValidecode",method=RequestMethod.GET)
+	public void imageRand(HttpServletResponse response,HttpServletRequest request) throws FileNotFoundException, IOException{
+		try {
+			response.setHeader("Pragma", "No-cache");  
+	        response.setHeader("Cache-Control", "no-cache");  
+	        response.setDateHeader("Expires", 0);  
+	        response.setContentType("image/jpeg");  
+	          
+	        //生成随机字串  
+	        String verifyCode = VerifyCodeUtils.generateVerifyCode(4);  
+	        //存入会话session  
+	        HttpSession session = request.getSession(true);  
+	        session.setAttribute("_code", verifyCode.toLowerCase());  
+	        //生成图片 
+	        int w = 146, h = 33;
+	        VerifyCodeUtils.outputImage(w, h, response.getOutputStream(), verifyCode,response);  
+		} catch (Exception e) {
+			System.out.println("验证码生成错误");
+		}
     }
 	
 	@RequestMapping(value = "/hello/{userid}",method=RequestMethod.GET)

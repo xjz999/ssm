@@ -69,34 +69,36 @@ public class UserServiceImplement implements UserService {
 //		return this.userDao.selectById(id);
 	}
 	public Boolean validEmail (String email) throws SQLException{
-		String sql  = "select oid from psatmp.users where email='"+email+"'";
+		String sql  = "select oid from psatmp.users where email=?";
 		System.out.print(sql);
 		boolean isConflict = false;
 		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
 		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
-        Statement stmt = conn.createStatement();  
-        ResultSet rs = stmt.executeQuery(sql);
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, email);
+        ResultSet rs = pst.executeQuery();
         if (rs.next()){
         	isConflict = true;
         }
-        rs.close();  
-        stmt.close();  
+        rs.close();
+        pst.close();  
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
 		return !isConflict;
 	}
 	public Boolean validMobile(String mobile) throws SQLException{
-		String sql  = "select oid from psatmp.users where mobile='"+mobile+"'";
+		String sql  = "select oid from psatmp.users where mobile=?";
 		System.out.print(sql);
 		boolean isConflict = false;
 		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
 		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
-        Statement stmt = conn.createStatement();  
-        ResultSet rs = stmt.executeQuery(sql);
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, mobile);
+        ResultSet rs = pst.executeQuery();
         if (rs.next()){
         	isConflict = true;
         }
         rs.close();  
-        stmt.close();  
+        pst.close();  
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
 		
 		return !isConflict;
@@ -114,16 +116,17 @@ public class UserServiceImplement implements UserService {
 	}
 	public Boolean GetSMS(String mobile,HttpServletRequest request1){
 		//生成4位随机数
-		int a = 1111;// (int)(Math.random()*(9999-1000+1))+1000;//产生1000-9999的随机数
+		int a = (int)(Math.random()*(9999-1000+1))+1000;//产生1000-9999的随机数
 		//String.valueOf(i);
 		//与手机一起存入临时session
-		System.out.println("存入");
+		System.out.println("SMS存入");
 		System.out.println(request1);
 		request1.getSession().setAttribute("smsIntCode",String.valueOf(a));
 		String smsIntCode = (String)request1.getSession().getAttribute("smsIntCode");
 		System.out.println(smsIntCode);
 		//todo //发送手机信息
-		return true;//发送成功
+		return SMSSent.doGet(String.valueOf(a), mobile);
+//		return true;//发送成功
 	}
 	public Boolean saveNewUser(HttpServletRequest request) throws SQLException, NumberFormatException{
 		User user = new User();

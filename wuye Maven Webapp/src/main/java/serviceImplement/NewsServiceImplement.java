@@ -61,25 +61,24 @@ public class NewsServiceImplement implements NewsService {
 		CompomentSql cs = new CompomentSql();
 		if (news.getOid() != null && !news.getOid().equals("")){//ÐÞ¸Ä
 			sql = "UPDATE `psatmp`.`news` SET `updatetime` = now()";
-			if (news.getTitle() != null && !news.getTitle().equals("")){
+			if (news.getTitle() != null){
 				qpList.add(new QueryParam("title",news.getTitle(),0,false));
 			}
-			if (news.getSummary() != null && !news.getSummary().equals("")){
+			if (news.getSummary() != null){
 				qpList.add(new QueryParam("summary",news.getSummary(),0,false));
 			}
-			if (news.getAuthor() != null && !news.getAuthor().equals("")){
+			if (news.getAuthor() != null){
 				qpList.add(new QueryParam("author",news.getAuthor(),0,false));
 			}
-			if (news.getEditor() != null && !news.getEditor().equals("")){
+			if (news.getEditor() != null){
 				qpList.add(new QueryParam("editor",news.getEditor(),0,false));
 			}
-			if (news.getPic() != null && !news.getPic().equals("")){
+			if (news.getPic() != null){
 				qpList.add(new QueryParam("pic",news.getPic(),0,false));
 			}
-			if (news.getContent() != null && !news.getContent().equals("")){
+			if (news.getContent() != null){
 				qpList.add(new QueryParam("content",news.getContent(),0,false));
 			}
-			
 			if (news.getIsTop() > -1){
 				qpList.add(new QueryParam("istop",news.getIsTop(),1,false));
 			}
@@ -92,13 +91,13 @@ public class NewsServiceImplement implements NewsService {
 			if (news.getDeleted() > -1){
 				qpList.add(new QueryParam("deleted",news.getDeleted(),1,false));
 			}
-			if (news.getSource() != null && !news.getSource().equals("")){
+			if (news.getSource() != null){
 				qpList.add(new QueryParam("source",news.getSource(),0,false));
 			}
-			if (news.getEyebrow() != null && !news.getEyebrow().equals("")){
+			if (news.getEyebrow() != null){
 				qpList.add(new QueryParam("eyebrow",news.getEyebrow(),0,false));
 			}
-			if (news.getInterpreter() != "" && !news.getInterpreter().equals("")){
+			if (news.getInterpreter() != null){
 				qpList.add(new QueryParam("interpreter",news.getInterpreter(),0,false));
 			}
 			

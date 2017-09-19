@@ -68,19 +68,19 @@ public class ArtServiceImplement implements ArtService {
 		CompomentSql cs = new CompomentSql();
 		if (art.getOid() != null && !art.getOid().equals("")){//ÐÞ¸Ä
 			sql = "UPDATE `psatmp`.`arts` SET `edittime` = now()";
-			if (art.getTitle() != null && !art.getTitle().equals("")){
+			if (art.getTitle() != null){
 				qpList.add(new QueryParam("title",art.getTitle(),0,false));
 			}
-			if (art.getPhotoaddr() != null && !art.getPhotoaddr().equals("")){
+			if (art.getPhotoaddr() != null){
 				qpList.add(new QueryParam("photoaddr",art.getPhotoaddr(),0,false));
 			}
-			if (art.getPhototime() != null && !art.getPhototime().equals("")){
+			if (art.getPhototime() != null){
 				qpList.add(new QueryParam("phototime",art.getPhototime(),0,false));
 			}
-			if (art.getStory() != null && !art.getStory().equals("")){
+			if (art.getStory() != null){
 				qpList.add(new QueryParam("story",art.getStory(),0,false));
 			}
-			if (art.getUrl() != null && !art.getUrl().equals("")){
+			if (art.getUrl() != null){
 				qpList.add(new QueryParam("url",art.getUrl(),0,false));
 			}
 			if (art.getOrderindex() > -1){
@@ -101,7 +101,7 @@ public class ArtServiceImplement implements ArtService {
 			if (art.getDeleted() > -1){
 				qpList.add(new QueryParam("deleted",art.getDeleted(),1,false));
 			}
-			if (art.getAuthor() != null && !art.getAuthor().equals("")){
+			if (art.getAuthor() != null){
 				qpList.add(new QueryParam("author",art.getAuthor(),0,false));
 			}
 			sql = cs.setUpdateStr(sql, qpList);
