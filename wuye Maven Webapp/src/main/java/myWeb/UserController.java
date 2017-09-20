@@ -1,5 +1,5 @@
 package myWeb;
-
+import common.RequstUrl;
 import myWeb.Greeting;
 
 import java.awt.Color;
@@ -10,12 +10,14 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.imageio.ImageIO;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -37,6 +39,9 @@ import entity.User;
 import entity.UserBackModel;
 import service.UserService;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 @RestController
 @RequestMapping("/Users")
 public class UserController {
@@ -57,13 +62,53 @@ public class UserController {
 		return userService.selectById(userid);//.toString();
     }
 	
+	//code=011dI2br1Eu3rq0cDJ8r1Vmlbr1dI2bQ&state=yyycbbo98123456
+	@RequestMapping(value="/wxReqBack",method=RequestMethod.GET)
+	public void wxReqBack(HttpServletRequest request,HttpServletResponse response) throws IOException{
+		String code = request.getParameter("code");
+        String state=request.getParameter("state");
+		System.out.println(code);
+		System.out.println(state);
+		//发起置换,取得openid、用户名、头像地址
+			//1,通过code获取access_token
+		JsonNode json1 = common.RequstUrl.doGet("https://api.weixin.qq.com", 
+				"/sns/oauth2/access_token?appid=wx4b1cd561744729ea&secret=11111111111111&code="+code+
+				"&grant_type=authorization_code"
+				, "", "");
+		JsonNode access_token = json1.path("access_token");
+		JsonNode openid = json1.path("openid");
+		
+		JsonNode json2 = common.RequstUrl.doGet("https://api.weixin.qq.com", 
+				"/sns/userinfo?access_token="+access_token+"&openid="+openid
+				, "", "");
+		JsonNode nickname = json2.path("nickname");
+		JsonNode headimgurl = json2.path("headimgurl");
+		//查询数据库如果已经绑定，注意查询时，只能通过openid确定唯一。
+		
+			//则判断是否已经人工审核，如果已经审核通过，设置cookies，并跳到会员中心。
+			//如果没有审核通过，则跳到绑定页面，显示正在审核的提示
+		//如果没有绑定，则跳到绑定页，让其绑定。
+		
+//		Cookie cookie = new Cookie("name",URLEncoder.encode("徐九洲", "utf-8"));//创建新cookie
+//        cookie.setMaxAge(24 * 60 * 60);// 设置存在时间为5分钟
+//        cookie.setPath("/");//设置作用域
+//        response.addCookie(cookie);//将cookie添加到response的cookie数组中返回给客户端
+//        
+//        Cookie cookie1 = new Cookie("loginname",code);//创建新cookie
+//        cookie1.setMaxAge(24 * 60 * 60);// 设置存在时间为5分钟
+//        cookie1.setPath("/");//设置作用域
+//        response.addCookie(cookie1);//将cookie添加到response的cookie数组中返回给客户端
+        
+		response.sendRedirect("/my/index.html");
+	}
+	
 	@RequestMapping(value = "/GetValidecode",method=RequestMethod.GET)
 	public void imageRand(HttpServletResponse response,HttpServletRequest request) throws FileNotFoundException, IOException{
 		try {
 			response.setHeader("Pragma", "No-cache");  
 	        response.setHeader("Cache-Control", "no-cache");  
 	        response.setDateHeader("Expires", 0);  
-	        response.setContentType("image/jpeg");  
+	        response.setContentType("image/jpeg");
 	          
 	        //生成随机字串  
 	        String verifyCode = VerifyCodeUtils.generateVerifyCode(4);  

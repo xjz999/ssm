@@ -16,6 +16,8 @@ public interface UserService {
 	public Boolean GetSMS(String mobile,HttpServletRequest request1);//发送手机验证码，
 	public Boolean saveNewUser(HttpServletRequest request) throws SQLException; //用户注册
 	public User validInfo(String info,String pw) throws SQLException; //用户验证
+	public User getUserByWXOpenid(String openid) throws SQLException;//通过微信openid取用户对像。
+	public Boolean bindUserByWXOpenid(String oid,String openid) throws SQLException;//微信与已有用户绑定
 	
 	public User getOne(String oid) throws SQLException;
 	public boolean addNew(User user) throws SQLException, ClassNotFoundException;
