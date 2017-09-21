@@ -64,7 +64,7 @@ public class UserController {
 	
 	//code=011dI2br1Eu3rq0cDJ8r1Vmlbr1dI2bQ&state=yyycbbo98123456
 	@RequestMapping(value="/wxReqBack",method=RequestMethod.GET)
-	public void wxReqBack(HttpServletRequest request,HttpServletResponse response) throws IOException{
+	public void wxReqBack(HttpServletRequest request,HttpServletResponse response) throws IOException, SQLException{
 		String code = request.getParameter("code");
         String state=request.getParameter("state");
 		System.out.println(code);
@@ -72,34 +72,87 @@ public class UserController {
 		//发起置换,取得openid、用户名、头像地址
 			//1,通过code获取access_token
 		JsonNode json1 = common.RequstUrl.doGet("https://api.weixin.qq.com", 
-				"/sns/oauth2/access_token?appid=wx4b1cd561744729ea&secret=11111111111111&code="+code+
+				"/sns/oauth2/access_token?appid=wx4b1cd561744729ea&secret=69f6c2b978d2d9f8decf7a3bf7ec1816&code="+code+
 				"&grant_type=authorization_code"
 				, "", "");
 		JsonNode access_token = json1.path("access_token");
 		JsonNode openid = json1.path("openid");
 		
 		JsonNode json2 = common.RequstUrl.doGet("https://api.weixin.qq.com", 
-				"/sns/userinfo?access_token="+access_token+"&openid="+openid
+				"/sns/userinfo?access_token=" + access_token.textValue() + "&openid="+openid.textValue()
 				, "", "");
 		JsonNode nickname = json2.path("nickname");
 		JsonNode headimgurl = json2.path("headimgurl");
 		//查询数据库如果已经绑定，注意查询时，只能通过openid确定唯一。
-		
+		User user = userService.getUserByWXOpenid(openid.textValue());
+		if (user != null){
+			if (user.getMemlevel() > 0){
+				Cookie cookie1 = new Cookie("loginname",user.getLoginname());
+				cookie1.setMaxAge(3600*24);
+				cookie1.setPath("/");
+				response.addCookie(cookie1);
+				
+				Cookie cookie2 = new Cookie("name",java.net.URLDecoder.decode(user.getTruename(), "UTF-8"));
+				cookie2.setMaxAge(3600*24);
+				cookie2.setPath("/");
+				response.addCookie(cookie2);
+				response.sendRedirect("/my/index.html");
+			}else{
+				response.sendRedirect("/userbindold.html?101");//正在审核
+			}
+		}else{
+			request.getSession().setAttribute("wxopenid", openid.textValue());
+			request.getSession().setAttribute("wxusername", nickname.textValue());
+			request.getSession().setAttribute("wximg", headimgurl.textValue());
+			response.sendRedirect("/userbindold.html?201");//进行微信绑定 202设置为qq绑定
+		}
 			//则判断是否已经人工审核，如果已经审核通过，设置cookies，并跳到会员中心。
 			//如果没有审核通过，则跳到绑定页面，显示正在审核的提示
 		//如果没有绑定，则跳到绑定页，让其绑定。
-		
-//		Cookie cookie = new Cookie("name",URLEncoder.encode("徐九洲", "utf-8"));//创建新cookie
-//        cookie.setMaxAge(24 * 60 * 60);// 设置存在时间为5分钟
-//        cookie.setPath("/");//设置作用域
-//        response.addCookie(cookie);//将cookie添加到response的cookie数组中返回给客户端
-//        
-//        Cookie cookie1 = new Cookie("loginname",code);//创建新cookie
-//        cookie1.setMaxAge(24 * 60 * 60);// 设置存在时间为5分钟
-//        cookie1.setPath("/");//设置作用域
-//        response.addCookie(cookie1);//将cookie添加到response的cookie数组中返回给客户端
-        
-		response.sendRedirect("/my/index.html");
+	}
+	@RequestMapping(value = "/BindWX",method=RequestMethod.POST)
+	public String bindWX(@RequestBody User user,HttpServletRequest request,
+			HttpServletResponse response) throws IOException, SQLException, ClassNotFoundException{
+		String wxopenid="";
+		String wxusername="";
+		String wximg="";
+		if(request.getSession().getAttribute("wxopenid") != null){
+			wxopenid = (String)request.getSession().getAttribute("wxopenid");
+		}
+		if(request.getSession().getAttribute("wxusername") != null){
+			wxusername = (String)request.getSession().getAttribute("wxusername");
+		}
+		if(request.getSession().getAttribute("wximg") != null){
+			wximg = (String)request.getSession().getAttribute("wximg");
+		}
+		if (wxopenid.equals("") || wxusername.equals("") || wximg.equals("")){
+			return "{\"code\":0}";//失败
+		}
+		user.setWechattoken(wxopenid+"|"+wxusername.replace("|", "~")+"|"+wximg);
+		if (userService.addNew(user)){
+			if (user.getOid() != null && !user.getOid().equals("")){
+				//已有用户的绑定成功,判断是否已经人工审核
+				User user0 = this.getOne(user.getOid());
+				if (user0.getMemlevel() > 0){//已经过审核，写Cookie
+					Cookie cookie1 = new Cookie("loginname",user0.getLoginname());
+					cookie1.setMaxAge(3600*24);
+					cookie1.setPath("/");
+					response.addCookie(cookie1);
+					
+					Cookie cookie2 = new Cookie("name",java.net.URLDecoder.decode(user0.getTruename(), "UTF-8"));
+					cookie2.setMaxAge(3600*24);
+					cookie2.setPath("/");
+					response.addCookie(cookie2);
+					return "{\"code\":2}";
+				}else{//未经审核，不写cookie.
+					return "{\"code\":1}";
+				}
+			}else{
+				return "{\"code\":1}";//新注册+绑定成功，不可写Cookies
+			}
+		}else{
+			return "{\"code\":0}";//失败
+		}
 	}
 	
 	@RequestMapping(value = "/GetValidecode",method=RequestMethod.GET)
@@ -159,6 +212,17 @@ public class UserController {
 		}else{
 			return "{\"valid\":false}";
 		}
+	}
+	@RequestMapping(value = "/GetUserOidByMobile",method=RequestMethod.POST)
+	public String getUserOidByMobile(@RequestParam(value="mobile", defaultValue="1") String mobile) throws SQLException{
+		String oidStr = userService.getOidByMobile(mobile);
+		return "{\"id\":\""+oidStr+"\"}";
+	}
+	@RequestMapping(value = "/GetUserOidByLoginnamePassword",method=RequestMethod.POST)
+	public String getUserOidByLoginnamePassword(@RequestParam(value="loginname", defaultValue="1") String loginname,
+			@RequestParam(value="password", defaultValue="1") String password) throws SQLException{
+		String oidStr = userService.getOidByUserPassword(loginname, password);
+		return "{\"id\":\""+oidStr+"\"}";
 	}
 	@RequestMapping(value = "/ValidMobile",method=RequestMethod.POST)
 	public String validMobile(@RequestParam(value="mobile", defaultValue="1") String mobile) throws SQLException{

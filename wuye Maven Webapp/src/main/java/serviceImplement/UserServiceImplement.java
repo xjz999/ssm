@@ -68,6 +68,25 @@ public class UserServiceImplement implements UserService {
 		return uu;
 //		return this.userDao.selectById(id);
 	}
+	public User getUserByWXOpenid(String openid) throws SQLException{
+		User user = null;
+		String sql ="select truename,loginname,memlevel from psatmp.users where wechattoken like ?";
+		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
+		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, openid+"%");
+		ResultSet rs = pst.executeQuery();
+        if (rs.next()){
+        	user = new User();
+        	user.setTruename(rs.getString(1));
+        	user.setLoginname(rs.getString(2));
+        	user.setMemlevel(rs.getInt(3));
+        }
+        rs.close();
+        pst.close();  
+        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+		return user;
+	}
 	public Boolean validEmail (String email) throws SQLException{
 		String sql  = "select oid from psatmp.users where email=?";
 		System.out.print(sql);
@@ -242,23 +261,31 @@ public class UserServiceImplement implements UserService {
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		String sql="";
 		if (user.getOid() != null && !user.getOid().equals("")){//修改
-			sql = "UPDATE `psatmp`.`users` SET `truename` = '"+user.getTruename()+"',"+
-			"`loginname` = '"+user.getLoginname()+"',"
-				+"`email` = '"+user.getEmail() +"',`mobile` = '"+user.getMobile()+"',`memlevel` = "+user.getMemlevel()+",";
+			sql = "UPDATE `psatmp`.`users` SET `oid`=`oid`";
+			if (user.getTruename() != null)
+				sql+= ",`truename` = '"+user.getTruename()+"'";
+			if (user.getLoginname() != null )
+				sql+= ",`loginname` = '"+user.getLoginname()+"'";
+			if (user.getEmail() != null)
+				sql+= ",`email` = '"+user.getEmail()+"'";
+			if (user.getMobile() != null)
+				sql+= ",`mobile` = '"+user.getMobile()+"'";
+			if (user.getMemlevel()>0)
+				sql+= ",`memlevel` = "+user.getMemlevel();
 				if (user.getPassword() != null && !user.getPassword().equals(""))
-					sql+= "`password` = '"+user.getPassword()+"',";
+					sql+= ",`password` = '"+user.getPassword()+"'";
 				if (user.getPortrait() != null)	
-					sql += "`portrait` = '"+user.getPortrait() +"',";
+					sql += ",`portrait` = '"+user.getPortrait() +"'";
 				if (user.getQqtoken() != null)	
-					sql += "`qqtoken` = '"+user.getQqtoken()+"',";
+					sql += ",`qqtoken` = '"+user.getQqtoken()+"'";
 				if (user.getWechattoken() != null)
-					sql += "`wechattoken` = '"+user.getWechattoken()+"',";
+					sql += ",`wechattoken` = '"+user.getWechattoken()+"'";
 				if (user.getWeibotoken() != null)	
-					sql += "`weibotoken` = '"+user.getWeibotoken()+"',";
+					sql += ",`weibotoken` = '"+user.getWeibotoken()+"'";
 				if (user.getRegphoto() != null)
-					sql += "`regphoto` = '"+user.getRegphoto() +"',";
+					sql += ",`regphoto` = '"+user.getRegphoto() +"'";
 				if (user.getQqtoken() != null)	
-					sql += "`backgroundimg` = '"+user.getBackgroundimg()+"',";
+					sql += ",`backgroundimg` = '"+user.getBackgroundimg()+"'";
 				
 				sql += "`eidttime` = now() WHERE `oid` = '"+user.getOid() +"';";
 				System.out.println(sql);
@@ -385,6 +412,52 @@ public class UserServiceImplement implements UserService {
 		ubm.setRecCount(count);
 		
 		return ubm;
+	}
+	@Override
+	public Boolean bindUserByWXOpenid(String oid, String openid, String wxName,
+			String wxImg) throws SQLException {
+		String wxToken = openid+"|"+wxName.replace("|", "~")+"|"+wxImg;
+		User user = new User();
+		user.setOid(oid);
+		user.setWechattoken(wxToken);
+		return this.addNew(user);
+	}
+	@Override
+	public String getOidByMobile(String mobile) throws SQLException {
+		// TODO Auto-generated method stub
+		String sql ="select oid from psatmp.users where mobile = ?";
+		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
+		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, mobile);
+		ResultSet rs = pst.executeQuery();
+        if (rs.next()){
+        	return rs.getString(1);
+        }
+        rs.close();
+        pst.close();  
+        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+		
+		return "";
+	}
+	@Override
+	public String getOidByUserPassword(String loginname,String password) throws SQLException {
+		// TODO Auto-generated method stub
+		String sql ="select oid from psatmp.users where loginname = ? and password=?";
+		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
+		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, loginname);
+		pst.setString(2, password);
+		ResultSet rs = pst.executeQuery();
+        if (rs.next()){
+        	return rs.getString(1);
+        }
+        rs.close();
+        pst.close();  
+        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+		
+		return "";
 	}
 
 }
