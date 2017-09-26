@@ -5,17 +5,17 @@ public class User {
 	private String truename;
 	private String loginname;
 	private String password;
-	private int sex;
+	private int sex = -1;
 	private String email;
 	private String mobile;
-	private int memlevel;
+	private int memlevel = -1;
 	private String portrait;
 	private long createtime;
 	private long edittime;
 	private String qqtoken;
 	private String wechattoken;
 	private String weibotoken;
-	private int regtype;
+	private int regtype = -1;
 	private String regphoto;
 	private String backgroundimg;
 	

@@ -138,13 +138,13 @@ public class ArtServiceImplement implements ArtService {
 		return (isSuccess > 0);
 	}
 	public boolean deleteOne(String oid) throws SQLException{
-		String sql = "delete from psatmp.competitions where oid='"+ oid +"'";
+		String sql = "delete from psatmp.arts where oid=?";
 		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
 		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
 		PreparedStatement pst = conn.prepareStatement(sql);
-		pst.setString(1, oid);
+		pst.setString(1,oid);
         int isSuccess = pst.executeUpdate();
-        pst.close();  
+        pst.close();
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
 		return (isSuccess > 0);
 	}
@@ -210,7 +210,7 @@ public class ArtServiceImplement implements ArtService {
 	    //由(pages-1)*limit算出当前页面第一条记录，由limit查询limit条记录。则得出当前页面的记录
         selectsql  = "select * from psatmp.arts where 1=1 ";
         selectsql = cs.setParamStr(selectsql, paramList);
-	    selectsql += " order by createtime desc limit " + (pages - 1) * limit + "," + limit;
+	    selectsql += " order by orderindex desc, createtime desc limit " + (pages - 1) * limit + "," + limit;
 	    pst = conn.prepareStatement(selectsql);
 	    pst = cs.setPstByList(pst, paramList);
 	    ResultSet retsult = pst.executeQuery();

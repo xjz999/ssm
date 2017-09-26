@@ -129,14 +129,14 @@ public class ArtController {
 					toSmaillImg(bigFilename,bigFilename,900, 900,0);
 					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename,150, 150,0);
 				break;
-				case "1":
-					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,midFilename,1024, 682,1);
+				case "1"://新闻图片
+//					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,midFilename,1024, 682,1);
 					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,firFilename,818, 545,1);
 					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename,160, 106,0);
 					break;
-				case "2":
+				case "2"://图片故事
 					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,midFilename,1024, 682,1);
-					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,firFilename,574, 383,1);
+					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,firFilename,574, 454,1);
 					toSmaillImg(path + File.separator + monthStr + File.separator+fileName,smallFilename,160, 106,0);
 					break;
 				case "4":

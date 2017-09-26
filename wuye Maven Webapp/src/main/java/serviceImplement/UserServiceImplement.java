@@ -199,24 +199,29 @@ public class UserServiceImplement implements UserService {
 		User user = new User();
 		String sql = "";
 		if(info.indexOf("@")!=-1){//邮箱
-			sql  = "select truename,loginname,memlevel from psatmp.users where memlevel > 0 and email=? and password=?";
+			sql  = "select truename,loginname,memlevel,oid,password from psatmp.users where memlevel > 0 and email=?";
 		}else{
-			sql  = "select truename,loginname,memlevel from psatmp.users where memlevel > 0 and mobile=? and password=?";
+			sql  = "select truename,loginname,memlevel,oid,password from psatmp.users where memlevel > 0 and mobile=?";
 		}
 		System.out.print(sql);
 		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
 		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
 		PreparedStatement pst = conn.prepareStatement(sql);
 		pst.setString(1, info);
-		pst.setString(2, pw);
         ResultSet rs = pst.executeQuery();
         if (rs.next()){
         	System.out.println("abc============");
 			System.out.println(rs);
-			user.setTruename(rs.getString(1));
-			user.setLoginname(rs.getString(2));
-			user.setMemlevel(Integer.parseInt(rs.getString(3)));
-        }
+			String pw1=rs.getString(5);
+			if (pw1.equals(pw)){
+				user.setTruename(rs.getString(1));
+				user.setLoginname(rs.getString(2));
+				user.setMemlevel(Integer.parseInt(rs.getString(3)));
+				user.setOid(rs.getString(4));
+			}
+        }else{
+			user.setLoginname("==========");
+		}
         rs.close();  
         pst.close();
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
@@ -261,34 +266,36 @@ public class UserServiceImplement implements UserService {
 //		SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		String sql="";
 		if (user.getOid() != null && !user.getOid().equals("")){//修改
-			sql = "UPDATE `psatmp`.`users` SET `oid`=`oid`";
+			sql = "UPDATE `psatmp`.`users` SET oid=oid";
 			if (user.getTruename() != null)
 				sql+= ",`truename` = '"+user.getTruename()+"'";
 			if (user.getLoginname() != null )
 				sql+= ",`loginname` = '"+user.getLoginname()+"'";
 			if (user.getEmail() != null)
 				sql+= ",`email` = '"+user.getEmail()+"'";
+			if (user.getSex() > -1)
+				sql+= ",`sex` = " + user.getSex();
 			if (user.getMobile() != null)
 				sql+= ",`mobile` = '"+user.getMobile()+"'";
-			if (user.getMemlevel()>0)
+			if (user.getMemlevel() > -1)
 				sql+= ",`memlevel` = "+user.getMemlevel();
-				if (user.getPassword() != null && !user.getPassword().equals(""))
-					sql+= ",`password` = '"+user.getPassword()+"'";
-				if (user.getPortrait() != null)	
-					sql += ",`portrait` = '"+user.getPortrait() +"'";
-				if (user.getQqtoken() != null)	
-					sql += ",`qqtoken` = '"+user.getQqtoken()+"'";
-				if (user.getWechattoken() != null)
-					sql += ",`wechattoken` = '"+user.getWechattoken()+"'";
-				if (user.getWeibotoken() != null)	
-					sql += ",`weibotoken` = '"+user.getWeibotoken()+"'";
-				if (user.getRegphoto() != null)
-					sql += ",`regphoto` = '"+user.getRegphoto() +"'";
-				if (user.getQqtoken() != null)	
-					sql += ",`backgroundimg` = '"+user.getBackgroundimg()+"'";
-				
-				sql += "`eidttime` = now() WHERE `oid` = '"+user.getOid() +"';";
-				System.out.println(sql);
+			if (user.getPassword() != null && !user.getPassword().equals(""))
+				sql+= ",`password` = '"+user.getPassword()+"'";
+			if (user.getPortrait() != null)	
+				sql += ",`portrait` = '"+user.getPortrait() +"'";
+			if (user.getQqtoken() != null)	
+				sql += ",`qqtoken` = '"+user.getQqtoken()+"'";
+			if (user.getWechattoken() != null)
+				sql += ",`wechattoken` = '"+user.getWechattoken()+"'";
+			if (user.getWeibotoken() != null)	
+				sql += ",`weibotoken` = '"+user.getWeibotoken()+"'";
+			if (user.getRegphoto() != null)
+				sql += ",`regphoto` = '"+user.getRegphoto() +"'";
+			if (user.getQqtoken() != null)	
+				sql += ",`backgroundimg` = '"+user.getBackgroundimg()+"'";
+			
+			sql += ",`eidttime` = now() WHERE `oid` = '"+user.getOid() +"';";
+			System.out.println(sql);
 		}else{//新增
 			UUID uuid = UUID.randomUUID();
 		    String oid = uuid.toString();
@@ -311,14 +318,15 @@ public class UserServiceImplement implements UserService {
 		return (isSuccess > 0);
 	}
 	public boolean deleteOne(String oid) throws SQLException{
-		String sql = "delete from psatmp.users where oid='"+ oid +"'";
+		String sql = "delete from psatmp.users where oid=?";
 		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
 		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
-        Statement stmt = conn.createStatement();  
-        boolean isSuccess = stmt.execute(sql); 
-        stmt.close();  
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, oid);
+        int isSuccess = pst.executeUpdate();
+        pst.close();  
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
-		return isSuccess;
+		return (isSuccess > 0);
 	}
 	public UserBackModel getList(Map mSearch) throws SQLException{//regtype,mobile,email,truename
 		List<User> list = new ArrayList<User>();
@@ -458,6 +466,44 @@ public class UserServiceImplement implements UserService {
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
 		
 		return "";
+	}
+	@Override
+	public User getUserByMine(HttpServletRequest request) throws SQLException {
+		String oid=(String)request.getSession().getAttribute("oid");
+		if (oid==null || oid.equals("")){
+			return null;
+		}
+		return this.getOne(oid);
+	}
+	@Override
+	public Boolean ModifyPassword(String oldPw, String newPw,String oid)
+			throws SQLException {
+		Boolean validOid = false;
+		String sql ="select oid from psatmp.users where oid = ? and password=?";
+		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
+		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, oid);
+		pst.setString(2, oldPw);
+		ResultSet rs = pst.executeQuery();
+        if (rs.next()){
+        	validOid = true;
+        }
+        rs.close();
+        if (!validOid){
+        	pst.close(); 
+            connPool.returnConnection(conn);
+            return false;
+        }
+        sql ="update psatmp.users set password = ? where oid = ?";
+        pst = conn.prepareStatement(sql);
+		pst.setString(1, newPw);
+		pst.setString(2, oid);
+		int success = pst.executeUpdate();
+		
+        pst.close(); 
+        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+		return (success>0);
 	}
 
 }

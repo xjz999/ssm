@@ -204,7 +204,7 @@ public class NewsServiceImplement implements NewsService {
 	    //由(pages-1)*limit算出当前页面第一条记录，由limit查询limit条记录。则得出当前页面的记录
         selectsql  = "select * from psatmp.news where 1=1 ";
         selectsql = cs.setParamStr(selectsql, paramList);
-	    selectsql += " order by createtime desc limit " + (pages - 1) * limit + "," + limit;
+	    selectsql += " order by istop desc, createtime desc limit " + (pages - 1) * limit + "," + limit;
 	    pst = conn.prepareStatement(selectsql);
 	    pst = cs.setPstByList(pst, paramList);
 	    ResultSet retsult = pst.executeQuery();

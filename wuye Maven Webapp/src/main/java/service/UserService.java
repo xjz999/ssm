@@ -20,6 +20,8 @@ public interface UserService {
 	public Boolean bindUserByWXOpenid(String oid,String openid,String wxName,String wxImg) throws SQLException;//微信与已有用户绑定
 	public String getOidByMobile(String mobile) throws SQLException;
 	public String getOidByUserPassword(String loginname,String password) throws SQLException;
+	public User getUserByMine(HttpServletRequest request) throws SQLException;
+	public Boolean ModifyPassword(String oldPw,String newPw,String oid) throws SQLException;
 	
 	public User getOne(String oid) throws SQLException;
 	public boolean addNew(User user) throws SQLException, ClassNotFoundException;

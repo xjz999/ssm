@@ -206,7 +206,7 @@ public class CompetitionServiceImplement implements CompetitionService {
 	    //由(pages-1)*limit算出当前页面第一条记录，由limit查询limit条记录。则得出当前页面的记录
         selectsql  = "select * from psatmp.competitions where 1=1 ";
         selectsql = cs.setParamStr(selectsql, paramList);
-	    selectsql += " order by createtime desc limit " + (pages - 1) * limit + "," + limit;
+	    selectsql += " order by ff desc,createtime desc limit " + (pages - 1) * limit + "," + limit;
 	    pst = conn.prepareStatement(selectsql);
 	    pst = cs.setPstByList(pst, paramList);
 	    ResultSet rs = pst.executeQuery();

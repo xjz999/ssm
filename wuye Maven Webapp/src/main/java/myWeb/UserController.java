@@ -87,12 +87,12 @@ public class UserController {
 		User user = userService.getUserByWXOpenid(openid.textValue());
 		if (user != null){
 			if (user.getMemlevel() > 0){
-				Cookie cookie1 = new Cookie("loginname",user.getLoginname());
+				Cookie cookie1 = new Cookie("loginname",URLEncoder.encode(user.getLoginname(), "utf-8"));
 				cookie1.setMaxAge(3600*24);
 				cookie1.setPath("/");
 				response.addCookie(cookie1);
 				
-				Cookie cookie2 = new Cookie("name",java.net.URLDecoder.decode(user.getTruename(), "UTF-8"));
+				Cookie cookie2 = new Cookie("name",URLEncoder.encode(user.getTruename(), "utf-8"));
 				cookie2.setMaxAge(3600*24);
 				cookie2.setPath("/");
 				response.addCookie(cookie2);
@@ -134,12 +134,12 @@ public class UserController {
 				//已有用户的绑定成功,判断是否已经人工审核
 				User user0 = this.getOne(user.getOid());
 				if (user0.getMemlevel() > 0){//已经过审核，写Cookie
-					Cookie cookie1 = new Cookie("loginname",user0.getLoginname());
+					Cookie cookie1 = new Cookie("loginname",URLEncoder.encode(user0.getLoginname(), "utf-8"));
 					cookie1.setMaxAge(3600*24);
 					cookie1.setPath("/");
 					response.addCookie(cookie1);
 					
-					Cookie cookie2 = new Cookie("name",java.net.URLDecoder.decode(user0.getTruename(), "UTF-8"));
+					Cookie cookie2 = new Cookie("name",URLEncoder.encode(user0.getTruename(), "utf-8"));
 					cookie2.setMaxAge(3600*24);
 					cookie2.setPath("/");
 					response.addCookie(cookie2);
@@ -257,21 +257,33 @@ public class UserController {
 		}
 		return "";
 	}
+	
 	@RequestMapping(value = "/ValidInfo",method=RequestMethod.POST)
-	public String validInfo(@RequestParam(value="logininfo", defaultValue="1") String logininfo,@RequestParam(value="password", 
+	public String validInfo(@RequestParam(value="logininfo", defaultValue="1") String logininfo,
+			@RequestParam(value="password", 
 		defaultValue="1") String password,HttpServletRequest request) throws SQLException{
 		User user = userService.validInfo(logininfo, password);
 		System.out.println(user.getTruename());
-		if (user.getLoginname() == null || user.getLoginname().equals("")){
+		if (user.getLoginname() == null){
 			return "{\"code\":0}";
+		}else if (user.getLoginname().equals("==========")){
+			return "{\"code\":2}";
 		}
 		//设置session
 		request.getSession().setAttribute("truename",user.getTruename());
 		request.getSession().setAttribute("loginname",user.getLoginname());
 		request.getSession().setAttribute("memlevel",user.getMemlevel());
+		request.getSession().setAttribute("oid",user.getOid());
 		//返回
 		return "{\"code\":1,\"truename\":\""+user.getTruename()+"\",\"loginname\":\""+user.getLoginname()+"\"}";
 	}
+	
+	@RequestMapping(value = "/GetMine",method=RequestMethod.GET)
+	public User getMine(HttpServletRequest request) throws SQLException {
+		User user = new User();
+		user=userService.getUserByMine(request);
+		return user;
+    }
 	
 	//******************************* CURD ****************************/
 	// 查
@@ -284,7 +296,7 @@ public class UserController {
 
 	// 增 & 改
 	@RequestMapping(value = "/AddNewByJson", method = RequestMethod.POST)
-	public String addNew(@RequestBody User user,HttpServletRequest hsq) throws ClassNotFoundException, SQLException {
+	public String addNew(@RequestBody User user) throws ClassNotFoundException, SQLException {
 		// return new Greeting(counter.incrementAndGet(),
 		// String.format(template, name));
 		//检查权限，是否已登录
@@ -316,4 +328,20 @@ public class UserController {
 //		List<Art> list = artService.getList(mSearch);
 		return userService.getList(mSearch);// .toString();
 	}
+	
+	@RequestMapping(value = "/ModifyPassword",method=RequestMethod.POST)
+	public String modifyPassword(@RequestBody Map mPw,
+			HttpServletRequest request) throws SQLException{
+		String oid=(String) request.getSession().getAttribute("oid");
+		if (oid.equals("")){
+			return "{\"code\":2}";
+		}
+		Boolean modify = userService.ModifyPassword((String)mPw.get("oldpw"),(String)mPw.get("newpw"), oid);
+		if (modify){
+			return "{\"code\":1}";
+		}else{
+			return "{\"code\":0}";
+		}
+	}
+	
 }
