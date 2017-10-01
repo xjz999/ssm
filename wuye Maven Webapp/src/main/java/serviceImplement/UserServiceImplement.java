@@ -256,6 +256,9 @@ public class UserServiceImplement implements UserService {
 			user.setRegtype(((Integer)rs.getInt(15) == null)?0:rs.getInt(15));
 			user.setRegphoto(rs.getString(16));
 			user.setBackgroundimg(rs.getString(17));
+			user.setDegree(rs.getString(18));
+			user.setDegree2(rs.getString(19));
+			user.setOrderindex(((Integer)rs.getInt(20) == null)?0:rs.getInt(20));
 		}//显示数据
         rs.close();  
         pst.close();
@@ -291,8 +294,14 @@ public class UserServiceImplement implements UserService {
 				sql += ",`weibotoken` = '"+user.getWeibotoken()+"'";
 			if (user.getRegphoto() != null)
 				sql += ",`regphoto` = '"+user.getRegphoto() +"'";
-			if (user.getQqtoken() != null)	
+			if (user.getBackgroundimg() != null)	
 				sql += ",`backgroundimg` = '"+user.getBackgroundimg()+"'";
+			if (user.getDegree() != null)	
+				sql += ",`degree` = '"+user.getDegree()+"'";
+			if (user.getDegree2() != null)	
+				sql += ",`degree2` = '"+user.getDegree2()+"'";
+			if (user.getOrderindex() > -1)	
+				sql += ",`orderindex` = "+user.getOrderindex();
 			
 			sql += ",`eidttime` = now() WHERE `oid` = '"+user.getOid() +"';";
 			System.out.println(sql);
@@ -303,11 +312,11 @@ public class UserServiceImplement implements UserService {
 		    sql = "INSERT INTO `psatmp`.`users` (`oid`,`truename`,`loginname`,`password`,`sex`,"+
 		    "`email`,`mobile`,`memlevel`,`portrait`,`createtime`,"+
 			"`eidttime`,`qqtoken`,`wechattoken`,`weibotoken`,`regtype`,"+
-		    "`regphoto`,`backgroundimg`) VALUES("+
+		    "`regphoto`,`backgroundimg`,`degree`,`degree2`,`orderindex`) VALUES("+
 			" '"+oid+"', '"+user.getTruename()+"', '"+user.getLoginname()+"', '"+user.getPassword()+"', "+user.getSex()+","+
 		    " '"+user.getEmail()+"', '"+user.getMobile()+"', "+user.getMemlevel()+", '"+user.getPortrait()+"',now(),"+
 			"now(), '"+user.getQqtoken()+"', '"+user.getWechattoken()+"', '"+user.getWeibotoken()+"', "+user.getRegtype()+","+
-		    " '"+user.getRegphoto()+"', '"+user.getBackgroundimg()+"');";
+		    " '"+user.getRegphoto()+"', '"+user.getBackgroundimg()+"','"+user.getDegree()+"','"+user.getDegree2()+"',"+user.getOrderindex()+");";
 		}
 		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
 		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
@@ -345,6 +354,8 @@ public class UserServiceImplement implements UserService {
 	    	paramList.add(new QueryParam("email",mSearch.get("email"),0,false));
 	    if(mSearch.get("truename") != null )
 	    	paramList.add(new QueryParam("truename",mSearch.get("truename"),0,true));
+	    if(mSearch.get("memlevel") != null )
+	    	paramList.add(new QueryParam("memlevel",mSearch.get("memlevel"),1,false));
 	    
 	    //计算记录总数的第二种办法：使用mysql的聚集函数count(*)
 	    String selectsql  = "select count(*) from psatmp.users where 1=1"; 
@@ -384,7 +395,7 @@ public class UserServiceImplement implements UserService {
 	    //由(pages-1)*limit算出当前页面第一条记录，由limit查询limit条记录。则得出当前页面的记录
         selectsql  = "select * from psatmp.users where 1=1 ";
         selectsql = cs.setParamStr(selectsql, paramList);
-	    selectsql += " order by createtime desc limit " + (pages - 1) * limit + "," + limit;
+	    selectsql += " order by orderindex desc, createtime desc limit " + (pages - 1) * limit + "," + limit;
 	    pst = conn.prepareStatement(selectsql);
 	    pst = cs.setPstByList(pst, paramList);
 	    ResultSet retsult = pst.executeQuery();
@@ -407,6 +418,9 @@ public class UserServiceImplement implements UserService {
 			user.setRegtype(((Integer)retsult.getInt(15) == null)?0:retsult.getInt(15));
 			user.setRegphoto(retsult.getString(16));
 			user.setBackgroundimg(retsult.getString(17));
+			user.setDegree(retsult.getString(18));
+			user.setDegree2(retsult.getString(19));
+			user.setOrderindex(((Integer)retsult.getInt(20) == null)?0:retsult.getInt(20));
 			list.add(user);
 		}
 		retsult.close();
@@ -504,6 +518,39 @@ public class UserServiceImplement implements UserService {
         pst.close(); 
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
 		return (success>0);
+	}
+	@Override
+	public Boolean GetModifyPWOldSMS(String mobile, HttpServletRequest request1)
+			throws SQLException {
+		//判断手机号是否存在于系统。
+		//生成随机码
+		//存入session.
+		//发送短信
+		return null;
+	}
+	@Override
+	public Boolean GetModifyPWNewSMS(String mobile, HttpServletRequest request1)
+			throws SQLException {
+		//生成随机码
+		//存入session.
+		//发送短信
+		return null;
+	}
+	@Override
+	public Boolean FindMyPW(Map mSearch) throws SQLException {
+		//判断验证码是否正确 _code
+		//通过truename及手机号，判断用户是否存在
+		//随机生成新的密码，
+		//发送到手机
+		return null;
+	}
+	@Override
+	public Boolean ModifyMyMobile(Map mSearch) throws SQLException {
+		//通过session判断旧的验证码是否正确
+		//通过session判断新的验证码是否正确
+		//通过旧手机号取得用户oid
+		//修改手机号，
+		return null;
 	}
 
 }

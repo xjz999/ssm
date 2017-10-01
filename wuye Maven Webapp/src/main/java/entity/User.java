@@ -18,7 +18,28 @@ public class User {
 	private int regtype = -1;
 	private String regphoto;
 	private String backgroundimg;
+	private String degree;
+	private String degree2;
+	private int orderindex = -1;
 	
+	public int getOrderindex() {
+		return orderindex;
+	}
+	public void setOrderindex(int orderindex) {
+		this.orderindex = orderindex;
+	}
+	public String getDegree() {
+		return degree;
+	}
+	public void setDegree(String degree) {
+		this.degree = degree;
+	}
+	public String getDegree2() {
+		return degree2;
+	}
+	public void setDegree2(String degree2) {
+		this.degree2 = degree2;
+	}
 	public String getOid() {
 		return oid;
 	}

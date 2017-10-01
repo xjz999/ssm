@@ -133,7 +133,14 @@ public class UserController {
 			if (user.getOid() != null && !user.getOid().equals("")){
 				//已有用户的绑定成功,判断是否已经人工审核
 				User user0 = this.getOne(user.getOid());
-				if (user0.getMemlevel() > 0){//已经过审核，写Cookie
+				if (user0.getMemlevel() > 0){//已经过审核，
+					//写Session
+					//设置session
+					request.getSession().setAttribute("truename",user0.getTruename());
+					request.getSession().setAttribute("loginname",user0.getLoginname());
+					request.getSession().setAttribute("memlevel",user0.getMemlevel());
+					request.getSession().setAttribute("oid",user0.getOid());
+					//写Cookie
 					Cookie cookie1 = new Cookie("loginname",URLEncoder.encode(user0.getLoginname(), "utf-8"));
 					cookie1.setMaxAge(3600*24);
 					cookie1.setPath("/");
@@ -166,7 +173,7 @@ public class UserController {
 	        //生成随机字串  
 	        String verifyCode = VerifyCodeUtils.generateVerifyCode(4);  
 	        //存入会话session  
-	        HttpSession session = request.getSession(true);  
+	        HttpSession session = request.getSession(true);
 	        session.setAttribute("_code", verifyCode.toLowerCase());  
 	        //生成图片 
 	        int w = 146, h = 33;
@@ -175,6 +182,46 @@ public class UserController {
 			System.out.println("验证码生成错误");
 		}
     }
+	
+	@RequestMapping(value = "/GetModifyPWOldSMS/{mobile}",method=RequestMethod.GET)
+	public String getModifyPWOldSMS(@PathVariable("mobile") String mobile,
+			HttpServletRequest request1) throws SQLException{
+		if (userService.GetModifyPWOldSMS(mobile, request1)){
+			return "{\"code\":1}";
+		}else{
+			return "{\"code\":0}";
+		}
+	}
+	@RequestMapping(value = "/GetModifyPWNewSMS/{mobile}",method=RequestMethod.GET)
+	public String getModifyPWNewSMS(@PathVariable("mobile") String mobile,
+			HttpServletRequest request1) throws SQLException{
+		if (userService.GetModifyPWNewSMS(mobile, request1)){
+			return "{\"code\":1}";
+		}else{
+			return "{\"code\":0}";
+		}
+	}
+	
+	//找回密码
+	@RequestMapping(value = "/FindMyPW", method = RequestMethod.POST)
+	public String findMyPW(@RequestBody Map mSearch) throws SQLException {
+		if (userService.FindMyPW(mSearch)){
+			return "{\"code\":1}";
+		}else{
+			return "{\"code\":0}";
+		}
+	}
+	//修改我的手机号
+	@RequestMapping(value = "/ModifyMyMobile", method = RequestMethod.POST)
+	public String modifyMyMobile(@RequestBody Map mSearch) throws SQLException {
+		if (userService.ModifyMyMobile(mSearch)){
+			return "{\"code\":1}";
+		}else{
+			return "{\"code\":0}";
+		}
+	}
+	
+	
 	
 	@RequestMapping(value = "/hello/{userid}",method=RequestMethod.GET)
 	public User greetingByGet(@PathVariable("userid") String oid) {

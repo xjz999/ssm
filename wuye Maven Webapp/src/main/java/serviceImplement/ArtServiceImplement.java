@@ -157,6 +157,8 @@ public class ArtServiceImplement implements ArtService {
 	    //²ÎÊýÔ¤´æ
 	    List<QueryParam> paramList = new ArrayList<QueryParam>();
 	    CompomentSql cs = new CompomentSql();
+	    if(mSearch.get("useroid") != null)
+	    	paramList.add(new QueryParam("useroid",mSearch.get("useroid"),0,false));
 	    if(mSearch.get("title") != null )
 	    	paramList.add(new QueryParam("title",mSearch.get("title"),0,true));
 	    if(mSearch.get("ctype") != null ){
