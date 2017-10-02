@@ -204,8 +204,8 @@ public class UserController {
 	
 	//找回密码
 	@RequestMapping(value = "/FindMyPW", method = RequestMethod.POST)
-	public String findMyPW(@RequestBody Map mSearch) throws SQLException {
-		if (userService.FindMyPW(mSearch)){
+	public String findMyPW(@RequestBody Map mSearch,HttpServletRequest request1) throws SQLException {
+		if (userService.FindMyPW(mSearch,request1)){
 			return "{\"code\":1}";
 		}else{
 			return "{\"code\":0}";
@@ -213,8 +213,8 @@ public class UserController {
 	}
 	//修改我的手机号
 	@RequestMapping(value = "/ModifyMyMobile", method = RequestMethod.POST)
-	public String modifyMyMobile(@RequestBody Map mSearch) throws SQLException {
-		if (userService.ModifyMyMobile(mSearch)){
+	public String modifyMyMobile(@RequestBody Map mSearch,HttpServletRequest request1) throws SQLException {
+		if (userService.ModifyMyMobile(mSearch,request1)){
 			return "{\"code\":1}";
 		}else{
 			return "{\"code\":0}";

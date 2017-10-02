@@ -22,10 +22,10 @@ public interface UserService {
 	public String getOidByUserPassword(String loginname,String password) throws SQLException;
 	public User getUserByMine(HttpServletRequest request) throws SQLException;
 	public Boolean ModifyPassword(String oldPw,String newPw,String oid) throws SQLException;
-	public Boolean GetModifyPWOldSMS(String mobile,HttpServletRequest request1) throws SQLException;;//修改手机号时，旧的验证码
-	public Boolean GetModifyPWNewSMS(String mobile,HttpServletRequest request1) throws SQLException;;//修改手机号时，新的验证码
-	public Boolean FindMyPW(Map mSearch) throws SQLException;//找回密码
-	public Boolean ModifyMyMobile(Map mSearch) throws SQLException;//修改手机号
+	public Boolean GetModifyPWOldSMS(String mobile,HttpServletRequest request1) throws SQLException;//修改手机号时，旧的验证码
+	public Boolean GetModifyPWNewSMS(String mobile,HttpServletRequest request1) throws SQLException;//修改手机号时，新的验证码
+	public Boolean FindMyPW(Map mSearch,HttpServletRequest request1) throws SQLException;//找回密码
+	public Boolean ModifyMyMobile(Map mSearch,HttpServletRequest request1) throws SQLException;//修改手机号
 	
 	public User getOne(String oid) throws SQLException;
 	public boolean addNew(User user) throws SQLException, ClassNotFoundException;

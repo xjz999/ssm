@@ -14,6 +14,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.omg.PortableInterceptor.USER_EXCEPTION;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -523,34 +524,133 @@ public class UserServiceImplement implements UserService {
 	public Boolean GetModifyPWOldSMS(String mobile, HttpServletRequest request1)
 			throws SQLException {
 		//判断手机号是否存在于系统。
-		//生成随机码
+		Boolean validOid = false;
+		String sql ="select oid from psatmp.users where mobile = ? and memlevel > 0";
+		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
+		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, mobile);
+		ResultSet rs = pst.executeQuery();
+        if (rs.next()){
+        	validOid = true;
+        }
+        rs.close();
+        pst.close(); 
+        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+		if (!validOid)return false;
+        //生成随机码
+		int a = (int)(Math.random()*(9999-1000+1))+1000;//产生1000-9999的随机数
 		//存入session.
+		System.out.println("SMS存入");
+		System.out.println(request1);
+		request1.getSession().setAttribute("smsIntCode_Old",String.valueOf(a));
+		String smsIntCode = (String)request1.getSession().getAttribute("smsIntCode_Old");
+		System.out.println(smsIntCode);
 		//发送短信
-		return null;
+		return SMSSent.doGet(String.valueOf(a)+"%EF%BC%88%E6%97%A7%E6%89%8B%E6%9C%BA%E5%8F%B7%EF%BC%89", mobile);
 	}
 	@Override
 	public Boolean GetModifyPWNewSMS(String mobile, HttpServletRequest request1)
 			throws SQLException {
 		//生成随机码
+		int a = (int)(Math.random()*(9999-1000+1))+1000;//产生1000-9999的随机数
 		//存入session.
+		System.out.println("SMS存入");
+		System.out.println(request1);
+		request1.getSession().setAttribute("smsIntCode_New",String.valueOf(a));
+		String smsIntCode = (String)request1.getSession().getAttribute("smsIntCode_New");
+		System.out.println(smsIntCode);
 		//发送短信
-		return null;
+		return SMSSent.doGet(String.valueOf(a)+"%EF%BC%88%E6%96%B0%E6%89%8B%E6%9C%BA%E5%8F%B7%EF%BC%89", mobile);
 	}
 	@Override
-	public Boolean FindMyPW(Map mSearch) throws SQLException {
+	public Boolean FindMyPW(Map mSearch,HttpServletRequest request1) throws SQLException {
+//		{truename:tn,mobile:mb,validcode:vc};
+		String truename =  (String)mSearch.get("truename");
+		String mobile =  (String)mSearch.get("mobile");
 		//判断验证码是否正确 _code
+		String upCode = (String)mSearch.get("validcode");
+		HttpSession session = request1.getSession(true);
+		String ssCode = (String)session.getAttribute("_code");
+		if (!upCode.toLowerCase().equals(ssCode))return false;
 		//通过truename及手机号，判断用户是否存在
+		String oidStr = "";
+		String sql ="select oid from psatmp.users where truename = ? and mobile=? and memlevel > 0";
+		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
+		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, truename);
+		pst.setString(2, mobile);
+		ResultSet rs = pst.executeQuery();
+        if (rs.next()){
+        	oidStr = rs.getString(1);
+        }
+        rs.close();
+        
+		if (oidStr.equals("")){
+			pst.close(); 
+	        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+	        return false;
+		}
 		//随机生成新的密码，
-		//发送到手机
-		return null;
+		int a = (int)(Math.random()*900000)+100000;//产生100000-999999的随机数
+		//修改密码
+		sql = "update psatmp.users set password = ? where oid=?";
+		pst = conn.prepareStatement(sql);
+		pst.setString(1, "sa"+String.valueOf(a));
+		pst.setString(2, oidStr);		
+		int isSuccess = pst.executeUpdate();
+		pst.close(); 
+        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+        if (isSuccess > 0){
+        	//发送到手机
+        	return SMSSent.doGet("%EF%BC%88%E6%96%B0%E5%AF%86%E7%A0%81%EF%BC%89sa"+String.valueOf(a), mobile);// （新密码）
+        }else{
+        	return false;
+        }
 	}
 	@Override
-	public Boolean ModifyMyMobile(Map mSearch) throws SQLException {
+	public Boolean ModifyMyMobile(Map mSearch,HttpServletRequest request1) throws SQLException {
+		//{mbo:mbo,mbn:mbn,vco:vco,vcn:vcn};
+		String vco =  (String)mSearch.get("vco");
+		String vcn =  (String)mSearch.get("vcn");
+		String mbo =  (String)mSearch.get("mbo");
+		String mbn =  (String)mSearch.get("mbn");
+		//判断验证码是否正确 _code
+		HttpSession session = request1.getSession(true);
+		String ssVco = (String)session.getAttribute("smsIntCode_Old");
+		String ssVcn = (String)session.getAttribute("smsIntCode_New");
 		//通过session判断旧的验证码是否正确
+		if (!vco.toLowerCase().equals(ssVco))return false;
 		//通过session判断新的验证码是否正确
+		if (!vcn.toLowerCase().equals(ssVcn))return false;
 		//通过旧手机号取得用户oid
+		String oidStr = "";
+		String sql ="select oid from psatmp.users where mobile=? and memlevel > 0";
+		ConnectionPool  connPool=ConnectionPoolUtils.GetPoolInstance();//单例模式创建连接池对象
+		Connection conn = connPool.getConnection(); // 从连接库中获取一个可用的连接  
+		PreparedStatement pst = conn.prepareStatement(sql);
+		pst.setString(1, mbo);
+		ResultSet rs = pst.executeQuery();
+        if (rs.next()){
+        	oidStr = rs.getString(1);
+        }
+        rs.close();
+        
+		if (oidStr.equals("")){
+			pst.close(); 
+	        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+	        return false;
+		}
 		//修改手机号，
-		return null;
+		sql = "update psatmp.users set mobile = ? where oid=?";
+		pst = conn.prepareStatement(sql);
+		pst.setString(1, mbn);
+		pst.setString(2, oidStr);		
+		int isSuccess = pst.executeUpdate();
+		pst.close(); 
+        connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
+        return (isSuccess > 0);
 	}
 
 }
