@@ -157,7 +157,13 @@ public class UserServiceImplement implements UserService {
 		user.setSex(Integer.parseInt(request.getParameter("optionsRadiosSex")));
 		user.setMobile(request.getParameter("mobile"));
 		user.setRegtype(Integer.parseInt(request.getParameter("optionsRadiosAward")));
-		user.setRegphoto(request.getParameter("regphoto"));
+		if (user.getRegtype() == 1){
+			user.setRegphoto(request.getParameter("regaward"));
+		}else{
+			user.setRegphoto(request.getParameter("regphoto"));
+		}
+		
+		
 		UUID uuid = UUID.randomUUID();
 	    String oid = uuid.toString();
 	    oid = oid.toUpperCase();
@@ -598,7 +604,7 @@ public class UserServiceImplement implements UserService {
 		sql = "update psatmp.users set password = ? where oid=?";
 		pst = conn.prepareStatement(sql);
 		pst.setString(1, "sa"+String.valueOf(a));
-		pst.setString(2, oidStr);		
+		pst.setString(2, oidStr);
 		int isSuccess = pst.executeUpdate();
 		pst.close(); 
         connPool.returnConnection(conn);// 连接使用完后释放连接到连接池 
